@@ -768,6 +768,21 @@ body.side-menu-open {
     background: var(--primary);
 }
 
+.nav-label-compact {
+    display: none;
+}
+
+@media (max-width: 1100px) {
+    .nav-label-desktop,
+    .nav-optional-word {
+        display: none;
+    }
+
+    .nav-label-compact {
+        display: inline;
+    }
+}
+
 /* ==================================================
    HEADER / HERO
 ================================================== */
@@ -8434,7 +8449,7 @@ html:not([data-theme="light"]) .side-menu-brand img {
     .navbar .nav-links {
         display: flex;
         min-width: 0;
-        gap: clamp(7px, 1.8vw, 14px);
+        gap: clamp(5px, 1.4vw, 12px);
         overflow: hidden;
     }
 
@@ -8442,15 +8457,10 @@ html:not([data-theme="light"]) .side-menu-brand img {
         display: inline-flex;
         flex: 0 0 auto;
         gap: 0.22em;
-        font-size: clamp(0.61rem, 1.7vw, 0.73rem);
+        font-size: clamp(0.72rem, 1.9vw, 0.82rem);
         white-space: nowrap;
     }
-}
 
-@media (max-width: 425px) {
-    .nav-optional-word {
-        display: none;
-    }
 }
 
 @media (max-width: 480px) {
