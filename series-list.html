@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SeyirAtlası dizi favorilerin, izlediklerin ve kişisel izleme listelerin.">
+    <meta name="theme-color" content="#0B1026">
+    <title>Dizi Listem · SeyirAtlası</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=3">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="series-page">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="twinkling-stars" aria-hidden="true"></div>
+
+    <nav class="navbar" aria-label="Ana menü">
+        <div class="navbar-inner"><div class="navbar-actions">
+            <div class="navbar-left">
+                <button type="button" class="menu-toggle" data-menu-toggle aria-label="Menüyü aç" aria-expanded="false"><span></span><span></span><span></span></button>
+                <div class="nav-links">
+                    <a href="series.html#seriesHero">Keşfet</a>
+                    <a href="series.html#seriesTrending">Popüler</a>
+                    <a href="series.html#seriesArchive">Dizi <span class="nav-optional-word">Arşivi</span></a>
+                    <a href="index.html#discoverSection">Film <span class="nav-optional-word">Arşivi</span></a>
+                    <a href="series.html#about">Hakkımızda</a>
+                </div>
+            </div>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Açık temaya geç" title="Temayı değiştir"><span aria-hidden="true">☀︎</span></button>
+        </div></div>
+    </nav>
+
+    <div class="side-menu" data-side-menu aria-hidden="true">
+        <button type="button" class="side-menu-backdrop" data-menu-close aria-label="Menüyü kapat"></button>
+        <aside class="side-menu-panel">
+            <div class="side-menu-header"><a href="series.html" class="side-menu-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><button type="button" class="side-menu-close" data-menu-close aria-label="Menüyü kapat">×</button></div>
+            <p class="side-menu-label">Kişisel alan</p>
+            <nav class="side-menu-links" aria-label="Kişisel sayfalar">
+                <a href="profile.html"><span aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19c.7-3.5 3-5.3 6.5-5.3s5.8 1.8 6.5 5.3"/></svg></span><div><strong>Profil</strong><small>Ortak hesabın ve seyir istatistiklerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="series-list.html" class="is-active" aria-current="page"><span aria-hidden="true"><i class="list-menu-icon"></i></span><div><strong>Listem</strong><small>Dizi favorilerin ve listelerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="index.html#discoverSection"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><strong>Film Arşivi</strong><small>Film keşif paneline geç</small></div><b aria-hidden="true">›</b></a>
+                <a href="series.html#seriesArchive"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 3 4 4 4-4"/><rect x="3" y="7" width="18" height="13" rx="3"/><path d="m10 11 5 2.5-5 2.5Z"/></svg></span><div><strong>Dizi Arşivi</strong><small>Dizi keşif paneline geç</small></div><b aria-hidden="true">›</b></a>
+            </nav>
+        </aside>
+    </div>
+
+    <main class="main-content inner-page">
+        <header class="page-header library-page-header">
+            <div><span class="about-kicker">Kişisel dizi seçkilerin</span><h1>Dizi Listem</h1><p>Favorilerini, daha sonra izleyeceklerini ve izlediğin dizileri burada bulabilirsin.</p></div>
+        </header>
+
+        <section class="library-auth-warning" id="seriesLibraryAuthWarning" hidden>
+            <span aria-hidden="true"><i class="list-menu-icon list-empty-icon"></i></span><h2>Dizi listeni oluşturmaya başla</h2>
+            <p>Favorilerini ve izlemek istediğin dizileri kaydetmek için ortak SeyirAtlası profiline giriş yapmalısın.</p>
+            <a href="profile.html">Giriş Yap veya Profil Oluştur</a>
+        </section>
+
+        <section class="user-library-section" id="seriesLibraryContent" aria-labelledby="seriesFavoritesTitle">
+            <div class="library-group">
+                <div class="library-group-heading"><h2 class="section-title" id="seriesFavoritesTitle">⋆ Favorilerim</h2></div>
+                <div class="movies-grid library-grid" id="seriesFavoritesGrid"></div>
+            </div>
+            <div class="library-group">
+                <div class="library-group-heading"><h2 class="section-title">⋆ İzlediklerim</h2></div>
+                <div class="movies-grid library-grid" id="seriesWatchedGrid"></div>
+            </div>
+            <section class="watch-lists-section">
+                <div class="watch-lists-heading"><div><h2 class="section-title">⋆ İzleme Listelerim</h2><p>İzlemek istediğin dizileri farklı listelerde düzenle.</p></div><button type="button" id="seriesNewListToggle">＋ Yeni Liste</button></div>
+                <form class="custom-list-form" id="seriesCustomListForm" hidden>
+                    <label><span>Liste adı</span><input type="text" name="name" maxlength="48" placeholder="Örn. Hafta sonu dizileri" required></label>
+                    <label><span>Kısa açıklama <small>isteğe bağlı</small></span><textarea name="description" maxlength="140" placeholder="Bu liste ne için?"></textarea></label>
+                    <div><button type="submit">Listeyi Oluştur</button><button type="button" id="seriesCustomListCancel">Vazgeç</button></div>
+                </form>
+                <article class="custom-list-card default-watch-list">
+                    <header class="custom-list-header"><div><span id="seriesWatchlistCount">0 dizi</span><h3>Daha Sonra İzle</h3><p>İzlemeyi planladığın diziler.</p></div></header>
+                    <div class="movies-grid library-grid" id="seriesWatchlistGrid"></div>
+                </article>
+                <div class="custom-lists-container" id="seriesCustomListsContainer"></div>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><a href="series.html" class="footer-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><p>Sinema evrenindeki rotan.</p><p class="footer-copy">© 2026 SeyirAtlası</p><p class="footer-data-sources">Veri kaynakları: TMDB · OMDb · Gemini API</p></div></footer>
+
+    <div class="movie-modal" id="seriesModal" aria-hidden="true" hidden>
+        <div class="movie-modal-backdrop" data-close-series-modal></div>
+        <div class="movie-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalSeriesTitle"><button type="button" class="movie-modal-close" id="seriesModalClose" aria-label="Dizi detaylarını kapat">×</button><div class="movie-modal-body" id="seriesModalBody"></div></div>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobil ana menü">
+        <a href="series.html#seriesHero"><span aria-hidden="true">⌕</span><small>Keşfet</small></a>
+        <a href="series.html#seriesTrending"><span aria-hidden="true">✦</span><small>Popüler</small></a>
+        <a href="series-list.html" class="is-active" aria-current="page"><span class="list-menu-icon" aria-hidden="true"></span><small>Listem</small></a>
+        <a href="profile.html"><span aria-hidden="true">♙</span><small>Profil</small></a>
+    </nav>
+    <script src="series.js" defer></script>
+    <script src="navigation.js" defer></script>
+</body>
+</html>

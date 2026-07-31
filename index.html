@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <meta
+        name="description"
+        content="SeyirAtlası ile popüler filmleri keşfedin, arama yapın ve tür, yıl veya puana göre filtreleyin.">
+
+    <meta
+        name="theme-color"
+        content="#0B1026">
+
+    <title>SeyirAtlası - Film Keşif Platformu</title>
+
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="images/favicon.svg?v=3">
+
+    <link
+        rel="stylesheet"
+        href="styles.css">
+</head>
+
+<body>
+
+    <!-- DEKORATİF ARKA PLAN -->
+
+    <div
+        class="stars"
+        aria-hidden="true">
+    </div>
+
+    <div
+        class="twinkling-stars"
+        aria-hidden="true">
+    </div>
+
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar" aria-label="Ana menü">
+        <div class="navbar-inner">
+            <div class="navbar-actions">
+                <div class="navbar-left">
+                    <button type="button" class="menu-toggle" data-menu-toggle aria-label="Menüyü aç" aria-expanded="false">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div class="nav-links">
+                        <a href="#hero">Keşfet</a>
+                        <a href="#trendingSection">Popüler</a>
+                        <a href="#discoverSection">Film <span class="nav-optional-word">Arşivi</span></a>
+                        <a href="series.html#seriesArchive">Dizi <span class="nav-optional-word">Arşivi</span></a>
+                        <a href="#about">Hakkımızda</a>
+                    </div>
+                </div>
+
+                <div class="navbar-right">
+                    <button type="button" class="recommend-trigger" id="recommendTrigger">
+                        <img src="images/pusula.svg" alt="" aria-hidden="true">
+                        <span>Pusula</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="theme-toggle"
+                        id="themeToggle"
+                        aria-label="Açık temaya geç"
+                        title="Temayı değiştir">
+                        <span aria-hidden="true">☀︎</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="side-menu" data-side-menu aria-hidden="true">
+        <button type="button" class="side-menu-backdrop" data-menu-close aria-label="Menüyü kapat"></button>
+        <aside class="side-menu-panel" aria-label="Kişisel menü">
+            <div class="side-menu-header">
+                <a href="index.html" class="side-menu-brand">
+                    <img src="images/logo.svg" alt="">
+                    <span>SeyirAtlası</span>
+                </a>
+                <button type="button" class="side-menu-close" data-menu-close aria-label="Menüyü kapat">×</button>
+            </div>
+            <p class="side-menu-label">Kişisel alan</p>
+            <nav class="side-menu-links" aria-label="Kişisel sayfalar">
+                <a href="profile.html"><span aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19c.7-3.5 3-5.3 6.5-5.3s5.8 1.8 6.5 5.3"/></svg></span><div><strong>Profil</strong><small>Hesabın ve seyir istatistiklerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="movie-list.html"><span aria-hidden="true"><i class="list-menu-icon"></i></span><div><strong>Listem</strong><small>Film favorilerin ve listelerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="series.html#seriesArchive"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 3 4 4 4-4"/><rect x="3" y="7" width="18" height="13" rx="3"/><path d="m10 11 5 2.5-5 2.5Z"/></svg></span><div><strong>Dizi Arşivi</strong><small>Dizi keşif paneline geç</small></div><b aria-hidden="true">›</b></a>
+                <a href="index.html#discoverSection"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><strong>Film Arşivi</strong><small>Film keşif panelindesin</small></div><b aria-hidden="true">›</b></a>
+            </nav>
+        </aside>
+    </div>
+
+    <!-- HERO -->
+
+    <header class="header" id="hero">
+
+        <div class="logo-text">
+            SeyirAtlası
+        </div>
+
+        <div class="brand">
+
+            <a
+                href="#hero"
+                class="logo"
+                aria-label="SeyirAtlası ana sayfa">
+
+                <img
+                    src="images/logo.svg"
+                    alt="SeyirAtlası"
+                    class="logo-image">
+
+            </a>
+
+        </div>
+
+        <p class="tagline">
+            Keşfe başla: Buradaki filmler, keşfedilmeyi bekleyen eşsiz birer yıldız!
+        </p>
+
+
+        <!-- ARAMA VE FİLTRELER -->
+
+        <div
+            class="search-container"
+            role="search">
+
+            <div class="search-box">
+
+                <label
+                    for="searchInput"
+                    class="visually-hidden">
+                    Film ara
+                </label>
+
+                <input
+                    type="search"
+                    class="search-input"
+                    id="searchInput"
+                    name="search"
+                    placeholder="Film adına göre ara..."
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Film ara">
+
+            </div>
+
+
+            <div
+                class="filters"
+                aria-label="Film filtreleri">
+
+                <label
+                    for="genreFilter"
+                    class="visually-hidden">
+                    Film türü seç
+                </label>
+
+                <select
+                    id="genreFilter"
+                    name="genre"
+                    aria-label="Film türü seç">
+
+                    <option value="">
+                        Türler
+                    </option>
+
+                </select>
+
+
+                <label
+                    for="yearFilter"
+                    class="visually-hidden">
+                    Film yılı seç
+                </label>
+
+                <select
+                    id="yearFilter"
+                    name="year"
+                    aria-label="Film yılı seç">
+
+                    <option value="">
+                        Yıllar
+                    </option>
+
+                </select>
+
+
+                <label
+                    for="sortFilter"
+                    class="visually-hidden">
+                    Filmleri sırala
+                </label>
+
+                <select
+                    id="sortFilter"
+                    name="sort"
+                    aria-label="Filmleri sırala">
+
+                    <option value="">
+                        Sırala
+                    </option>
+
+                    <option value="popularity.desc">
+                        En Popüler
+                    </option>
+
+                    <option value="imdb_rating.desc">
+                        En Yüksek IMDb Puanı
+                    </option>
+
+                    <option value="primary_release_date.desc">
+                        En Yeni
+                    </option>
+
+                    <option value="title.asc">
+                        A'dan Z'ye
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="clear-btn"
+                id="clearBtn">
+
+                Filtreleri Temizle
+
+            </button>
+
+        </div>
+    </header>
+
+
+    <!-- ANA İÇERİK -->
+
+    <main class="main-content">
+
+
+        <!-- SEYİRCİNİN FAVORİLERİ -->
+
+        <section
+            class="movies-section trending-section"
+            id="trendingSection"
+            aria-labelledby="trendingTitle">
+
+            <h2
+                class="section-title"
+                id="trendingTitle">
+
+                ⋆ Seyircinin Favorileri
+
+            </h2>
+
+
+            <div class="carousel-container">
+
+                <button
+                    type="button"
+                    class="carousel-btn prev"
+                    id="trendingPrev"
+                    aria-label="Önceki filmleri göster">
+
+                    <span aria-hidden="true">
+                        &#10094;
+                    </span>
+
+                </button>
+
+
+                <div
+                    class="carousel"
+                    id="trendingCarousel"
+                    aria-live="polite">
+
+                    <div class="skeleton-card is-trending" aria-hidden="true"><div class="skeleton-poster"></div></div>
+                    <div class="skeleton-card is-trending" aria-hidden="true"><div class="skeleton-poster"></div></div>
+                    <div class="skeleton-card is-trending" aria-hidden="true"><div class="skeleton-poster"></div></div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="carousel-btn next"
+                    id="trendingNext"
+                    aria-label="Sonraki filmleri göster">
+
+                    <span aria-hidden="true">
+                        &#10095;
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- FİLM ARŞİVİ -->
+
+        <section
+            class="movies-section discover-section"
+            id="discoverSection"
+            aria-labelledby="discoverTitle">
+
+            <h2
+                class="section-title"
+                id="discoverTitle">
+
+                ⋆ Film Arşivi
+
+            </h2>
+
+            <div class="results-toolbar" id="resultsToolbar" aria-live="polite">
+                <p id="resultsSummary">Filmler senin için hazırlanıyor…</p>
+                <div class="active-filter-chips" id="activeFilterChips"></div>
+            </div>
+
+
+            <div
+                class="movies-grid"
+                id="moviesGrid"
+                aria-live="polite">
+
+                <div class="skeleton-card" aria-hidden="true"><div class="skeleton-poster"></div><div class="skeleton-copy"><i></i><i></i><i></i></div></div>
+                <div class="skeleton-card" aria-hidden="true"><div class="skeleton-poster"></div><div class="skeleton-copy"><i></i><i></i><i></i></div></div>
+                <div class="skeleton-card" aria-hidden="true"><div class="skeleton-poster"></div><div class="skeleton-copy"><i></i><i></i><i></i></div></div>
+                <div class="skeleton-card" aria-hidden="true"><div class="skeleton-poster"></div><div class="skeleton-copy"><i></i><i></i><i></i></div></div>
+
+            </div>
+
+        </section>
+
+        <div class="load-more-wrapper">
+            <button type="button" class="load-more-btn" id="loadMoreBtn">
+                <span>Daha Fazla Film Göster</span>
+                <span aria-hidden="true">↓</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- HAKKIMIZDA -->
+
+    <section class="about-section" id="about" aria-labelledby="aboutTitle">
+        <div class="about-content">
+            <span class="about-kicker">Bir sonraki filmini keşfet</span>
+            <h2 id="aboutTitle">Hikâyelerin yıldız haritası</h2>
+            <p>
+                SeyirAtlası; farklı türlerden, dönemlerden ve coğrafyalardan filmleri
+                tek bir yerde keşfedebilmen için tasarlandı. Aradığın filmi bul, yeni
+                hikâyelere yolculuk et ve sinema evreninde kendi rotanı çiz.
+            </p>
+            <a href="#hero" class="about-link">Keşfe dön <span aria-hidden="true">↑</span></a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <a href="#hero" class="footer-brand">
+                <img src="images/logo.svg" alt="" aria-hidden="true">
+                <span>SeyirAtlası</span>
+            </a>
+            <p>Sinema evrenindeki rotan.</p>
+            <div class="footer-contact" aria-label="İletişim bağlantıları">
+                <a
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=pcl.elif@gmail.com"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3.35 6.44A2 2 0 0 1 5 5.56h14c.68 0 1.28.34 1.65.88L12 13.68 3.35 6.44ZM3 8.37v9.08l5.46-4.51L3 8.37Zm18 0-5.46 4.57L21 17.45V8.37Zm-6.64 5.56-1.4 1.17a1.5 1.5 0 0 1-1.92 0l-1.4-1.17-5.95 4.91c.35.38.85.6 1.4.6h13.82c.55 0 1.05-.22 1.4-.6l-5.95-4.91Z"/>
+                    </svg>
+                    <span>pcl.elif@gmail.com</span>
+                </a>
+                <a
+                    href="https://www.linkedin.com/in/elifpoculu"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2ZM8.34 18H5.67V9.42h2.67V18ZM7 8.25a1.55 1.55 0 1 1 0-3.1 1.55 1.55 0 0 1 0 3.1ZM18.33 18h-2.66v-4.17c0-1-.02-2.28-1.39-2.28-1.39 0-1.6 1.08-1.6 2.2V18H10V9.42h2.56v1.17h.04a2.8 2.8 0 0 1 2.52-1.39c2.7 0 3.2 1.78 3.2 4.09V18Z"/>
+                    </svg>
+                    <span>LinkedIn</span>
+                </a>
+                <a
+                    href="https://github.com/pclelif"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.87c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.35 1.09 2.92.83.09-.65.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.58 9.58 0 0 1 12 6.82c.85 0 1.69.11 2.48.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.56 4.93.36.31.68.92.68 1.86v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>
+                    </svg>
+                    <span>GitHub</span>
+                </a>
+            </div>
+            <p class="footer-copy">© 2026 SeyirAtlası</p>
+            <p class="footer-data-sources">Veri kaynakları: TMDB · OMDb · Gemini API</p>
+        </div>
+    </footer>
+
+
+    <!-- FİLM DETAY MODALI -->
+
+    <div
+        class="movie-modal"
+        id="movieModal"
+        aria-hidden="true"
+        hidden>
+
+        <div
+            class="movie-modal-backdrop"
+            data-close-modal="true">
+        </div>
+
+
+        <div
+            class="movie-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalMovieTitle">
+
+            <button
+                type="button"
+                class="movie-modal-close"
+                id="movieModalClose"
+                aria-label="Film detaylarını kapat">
+
+                ×
+
+            </button>
+
+
+            <div
+                class="movie-modal-body"
+                id="movieModalBody">
+
+                <div class="modal-loading">
+                    Film bilgileri yükleniyor...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="recommend-modal" id="recommendModal" hidden aria-hidden="true">
+        <button type="button" class="recommend-backdrop" data-close-recommend aria-label="Öneri penceresini kapat"></button>
+        <section class="recommend-dialog" role="dialog" aria-modal="true" aria-labelledby="recommendTitle">
+            <button type="button" class="recommend-close" data-close-recommend aria-label="Kapat">×</button>
+            <div class="pusula-heading">
+                <div>
+                    <span class="about-kicker">Sana en uygun rotayı çizmek için burada</span>
+                    <div class="pusula-title-row">
+                        <span class="pusula-mark" aria-hidden="true"><img src="images/pusula.svg" alt=""></span>
+                        <h2 id="recommendTitle">Pusula</h2>
+                    </div>
+                    <p>Pusulan <span data-pusula-daypart>bu akşam</span> seni nasıl bir hikâyeye çağırıyor?</p>
+                </div>
+            </div>
+            <div class="pusula-questions" id="pusulaQuestions">
+                <fieldset class="pusula-question" data-pusula-group="type">
+                    <legend>Ne arıyoruz?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="film">Film</button>
+                        <button type="button" data-pusula-value="dizi">Dizi</button>
+                        <button type="button" data-pusula-value="fark etmez">Kararsızım</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question" data-pusula-group="duration">
+                    <legend>Ne kadar vaktimiz var?</legend>
+                    <div class="pusula-choice-row" data-pusula-duration-options>
+                        <button type="button" data-pusula-value="90 dakikadan kısa">Çıtır çerez</button>
+                        <button type="button" data-pusula-value="yaklaşık 2 saat">Tam kıvamında</button>
+                        <button type="button" data-pusula-value="uzun, sürükleyici bir yapım">Uzun soluklu</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question" data-pusula-group="company">
+                    <legend>Bu yolculuğa kimlerle çıkıyoruz?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="yalnız">Yalnız</button>
+                        <button type="button" data-pusula-value="baş başa">Baş başa</button>
+                        <button type="button" data-pusula-value="arkadaşlarımla">Arkadaşlarımla</button>
+                        <button type="button" data-pusula-value="ailemle">Ailemle</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question pusula-question-wide" data-pusula-group="need" data-pusula-multiple>
+                    <legend><span data-pusula-daypart>Bu akşam</span> sana ne iyi gelir?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="sakin, huzurlu ve yormayan bir hikâye">Kafa dinleyelim</button>
+                        <button type="button" data-pusula-value="hayatı sorgulatan, anlamlı ve ruha iyi gelen bir hikâye">Ruhumuza iyi gelsin</button>
+                        <button type="button" data-pusula-value="bol bol kahkaha atmak">Bolca kahkaha atalım</button>
+                        <button type="button" data-pusula-value="romantik, heyecanlı ve kalbi kıpırdatan bir hikâye">Kalbimiz kıpırdasın</button>
+                        <button type="button" data-pusula-value="duygulanmak ve biraz ağlamak">Birazcık ağlayalım</button>
+                        <button type="button" data-pusula-value="nostaljik, sıcak ve çocukluğu hatırlatan bir hikâye">Çocukluğumuza dönelim</button>
+                        <button type="button" data-pusula-value="fantastik bir evrene veya bambaşka bir dünyaya kaçmak">Başka bir dünyaya kaçalım</button>
+                        <button type="button" data-pusula-value="bilim kurgu ve geleceğe dair fikirler">Geleceğe ışınlanalım</button>
+                        <button type="button" data-pusula-value="kült, bilgi içeren veya yeni bir bakış açısı kazandıran bir yapım">Ufkumuz genişlesin</button>
+                        <button type="button" data-pusula-value="yüksek tempo ve soluksuz bir macera">Soluksuz izleyelim</button>
+                        <button type="button" data-pusula-value="karmaşık, şaşırtıcı ve zihni zorlayan bir hikâye">Beynimiz yansın!</button>
+                        <button type="button" data-pusula-value="korku, gerilim ve karanlık bir atmosfer">Karanlığa var mısın?</button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="pusula-chat" id="pusulaChat" aria-live="polite" aria-label="Pusula sohbeti">
+                <div class="pusula-message pusula-message-ai">
+                    <span class="pusula-avatar" aria-hidden="true">✦</span>
+                    <div>
+                        <strong>Pusula</strong>
+                        <p>Bazen tek bir his yönünü bulmaya yeter. İstersen sana en uygun seçenekleri seç, istersen aklındakileri kendi cümlelerinle dök.</p>
+                    </div>
+                </div>
+            </div>
+            <form id="recommendForm" class="pusula-composer">
+                <label for="pusulaInput" class="visually-hidden">Pusula'ya mesajın</label>
+                <textarea id="pusulaInput" name="message" rows="1" maxlength="600" placeholder="Aklından geçenleri paylaş…"></textarea>
+                <button type="submit" aria-label="Mesajı gönder">
+                    <span>Yola çıkalım</span>
+                </button>
+            </form>
+        </section>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobil ana menü">
+        <a href="#hero" class="is-active" aria-current="page"><span aria-hidden="true">⌕</span><small>Keşfet</small></a>
+        <a href="#trendingSection"><span aria-hidden="true">✦</span><small>Popüler</small></a>
+        <a href="series.html"><span aria-hidden="true">▣</span><small>Diziler</small></a>
+        <a href="movie-list.html"><span class="list-menu-icon" aria-hidden="true"></span><small>Listem</small></a>
+    </nav>
+
+
+    <script
+        src="movies.js"
+        defer>
+    </script>
+    <script src="navigation.js" defer></script>
+
+</body>
+
+</html>

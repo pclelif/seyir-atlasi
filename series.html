@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SeyirAtlası Dizi Paneli ile popüler dizileri keşfedin; tür, yıl ve puana göre filtreleyin.">
+    <meta name="theme-color" content="#0B1026">
+    <title>SeyirAtlası · Dizi Arşivi</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=3">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="series-page">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="twinkling-stars" aria-hidden="true"></div>
+
+    <nav class="navbar" aria-label="Ana menü">
+        <div class="navbar-inner">
+            <div class="navbar-actions">
+                <div class="navbar-left">
+                    <button type="button" class="menu-toggle" data-menu-toggle aria-label="Menüyü aç" aria-expanded="false"><span></span><span></span><span></span></button>
+                    <div class="nav-links">
+                        <a href="#seriesHero">Keşfet</a>
+                        <a href="#seriesTrending">Popüler</a>
+                        <a href="#seriesArchive">Dizi <span class="nav-optional-word">Arşivi</span></a>
+                        <a href="index.html#discoverSection">Film <span class="nav-optional-word">Arşivi</span></a>
+                        <a href="#about">Hakkımızda</a>
+                    </div>
+                </div>
+                <div class="navbar-right">
+                    <button type="button" class="recommend-trigger" id="seriesRecommendTrigger">
+                        <img src="images/pusula.svg" alt="" aria-hidden="true"><span>Pusula</span>
+                    </button>
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Açık temaya geç" title="Temayı değiştir"><span aria-hidden="true">☀︎</span></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="side-menu" data-side-menu aria-hidden="true">
+        <button type="button" class="side-menu-backdrop" data-menu-close aria-label="Menüyü kapat"></button>
+        <aside class="side-menu-panel" aria-label="Kişisel menü">
+            <div class="side-menu-header">
+                <a href="index.html" class="side-menu-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a>
+                <button type="button" class="side-menu-close" data-menu-close aria-label="Menüyü kapat">×</button>
+            </div>
+            <p class="side-menu-label">Kişisel alan</p>
+            <nav class="side-menu-links" aria-label="Sayfalar">
+                <a href="profile.html"><span aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19c.7-3.5 3-5.3 6.5-5.3s5.8 1.8 6.5 5.3"/></svg></span><div><strong>Profil</strong><small>Hesabın ve seyir istatistiklerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="series-list.html"><span aria-hidden="true"><i class="list-menu-icon"></i></span><div><strong>Listem</strong><small>Dizi favorilerin ve listelerin</small></div><b aria-hidden="true">›</b></a>
+                <a href="index.html#discoverSection"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><strong>Film Arşivi</strong><small>Film keşif paneline geç</small></div><b aria-hidden="true">›</b></a>
+                <a href="series.html#seriesArchive" class="is-current"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 3 4 4 4-4"/><rect x="3" y="7" width="18" height="13" rx="3"/><path d="m10 11 5 2.5-5 2.5Z"/></svg></span><div><strong>Dizi Arşivi</strong><small>Dizi keşif panelindesin</small></div><b aria-hidden="true">›</b></a>
+            </nav>
+        </aside>
+    </div>
+
+    <header class="header series-hero" id="seriesHero">
+        <div class="logo-text">SeyirAtlası</div>
+        <div class="brand">
+            <a href="#seriesHero" class="logo" aria-label="SeyirAtlası dizi keşif sayfası">
+                <img src="images/logo.svg" alt="SeyirAtlası" class="logo-image">
+            </a>
+        </div>
+        <p class="tagline">Keşfe başla: Buradaki diziler, keşfedilmeyi bekleyen yeni evrenler!</p>
+
+        <div class="search-container" role="search">
+            <div class="search-box">
+                <label for="seriesSearchInput" class="visually-hidden">Dizi ara</label>
+                <input type="search" class="search-input" id="seriesSearchInput" placeholder="Dizi adına göre ara..." autocomplete="off" spellcheck="false">
+            </div>
+            <div class="filters" aria-label="Dizi filtreleri">
+                <select id="seriesGenreFilter" aria-label="Dizi türü seç"><option value="">Türler</option></select>
+                <select id="seriesYearFilter" aria-label="Dizi yılı seç"><option value="">Yıllar</option></select>
+                <select id="seriesSortFilter" aria-label="Dizileri sırala">
+                    <option value="popularity.desc">En Popüler</option>
+                    <option value="imdb_rating.desc">En Yüksek IMDb Puanı</option>
+                    <option value="first_air_date.desc">En Yeni</option>
+                    <option value="name.asc">A'dan Z'ye</option>
+                </select>
+            </div>
+            <button type="button" class="clear-btn" id="seriesClearBtn">Filtreleri Temizle</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="movies-section trending-section" id="seriesTrending" aria-labelledby="seriesTrendingTitle">
+            <h2 class="section-title" id="seriesTrendingTitle">⋆ Seyircinin Favorileri</h2>
+            <div class="carousel-container">
+                <button type="button" class="carousel-btn prev" id="seriesTrendingPrev" aria-label="Önceki dizileri göster">❮</button>
+                <div class="carousel" id="seriesTrendingCarousel" aria-live="polite"></div>
+                <button type="button" class="carousel-btn next" id="seriesTrendingNext" aria-label="Sonraki dizileri göster">❯</button>
+            </div>
+        </section>
+
+        <section class="movies-section discover-section" id="seriesArchive" aria-labelledby="seriesArchiveTitle">
+            <span class="series-archive-kicker">Uzun soluklu hikâyeler</span>
+            <h2 class="section-title" id="seriesArchiveTitle">⋆ Dizi Arşivi</h2>
+            <div class="results-toolbar" id="seriesResultsToolbar" aria-live="polite">
+                <p id="seriesResultsSummary">Diziler senin için hazırlanıyor…</p>
+                <div class="active-filter-chips" id="seriesFilterChips"></div>
+            </div>
+            <div class="movies-grid" id="seriesGrid" aria-live="polite"></div>
+        </section>
+        <div class="load-more-wrapper">
+            <button type="button" class="load-more-btn" id="seriesLoadMoreBtn"><span>15 Dizi Daha Göster</span><span aria-hidden="true">↓</span></button>
+        </div>
+    </main>
+
+    <section class="about-section series-about" id="about" aria-labelledby="seriesAboutTitle">
+        <div class="about-content">
+            <span class="about-kicker">Bir sonraki dizini keşfet</span>
+            <h2 id="seriesAboutTitle">Hikâyelerin yıldız haritası</h2>
+            <p>SeyirAtlası; farklı türlerden, dönemlerden ve coğrafyalardan dizileri tek bir yerde keşfedebilmen için tasarlandı. Aradığın diziyi bul, yeni hikâyelere yolculuk et ve sinema evreninde kendi rotanı çiz.</p>
+            <a href="#seriesHero" class="about-link">Keşfe dön <span aria-hidden="true">↑</span></a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <a href="index.html" class="footer-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a>
+            <p>Sinema evrenindeki rotan.</p>
+            <p class="footer-copy">© 2026 SeyirAtlası</p>
+            <p class="footer-data-sources">Veri kaynakları: TMDB · OMDb · Gemini API</p>
+        </div>
+    </footer>
+
+    <div class="movie-modal" id="seriesModal" aria-hidden="true" hidden>
+        <div class="movie-modal-backdrop" data-close-series-modal></div>
+        <div class="movie-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalSeriesTitle">
+            <button type="button" class="movie-modal-close" id="seriesModalClose" aria-label="Dizi detaylarını kapat">×</button>
+            <div class="movie-modal-body" id="seriesModalBody"></div>
+        </div>
+    </div>
+
+    <div class="recommend-modal" id="seriesRecommendModal" hidden aria-hidden="true">
+        <button type="button" class="recommend-backdrop" data-close-series-recommend aria-label="Öneri penceresini kapat"></button>
+        <section class="recommend-dialog" role="dialog" aria-modal="true" aria-labelledby="seriesRecommendTitle">
+            <button type="button" class="recommend-close" data-close-series-recommend aria-label="Kapat">×</button>
+            <div class="pusula-heading">
+                <div>
+                    <span class="about-kicker">Sana en uygun rotayı çizmek için burada</span>
+                    <div class="pusula-title-row">
+                        <span class="pusula-mark" aria-hidden="true"><img src="images/pusula.svg" alt=""></span>
+                        <h2 id="seriesRecommendTitle">Pusula</h2>
+                    </div>
+                    <p>Pusulan <span data-pusula-daypart>bu akşam</span> seni nasıl bir hikâyeye çağırıyor?</p>
+                </div>
+            </div>
+            <div class="pusula-questions" id="seriesPusulaQuestions">
+                <fieldset class="pusula-question" data-pusula-group="type">
+                    <legend>Ne arıyoruz?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="film">Film</button>
+                        <button type="button" data-pusula-value="dizi">Dizi</button>
+                        <button type="button" data-pusula-value="fark etmez">Kararsızım</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question" data-pusula-group="duration">
+                    <legend>Ne kadar vaktimiz var?</legend>
+                    <div class="pusula-choice-row" data-pusula-duration-options>
+                        <button type="button" data-pusula-value="tek bölüm, 30 dakikaya kadar">Çıtır çerez</button>
+                        <button type="button" data-pusula-value="tek bölüm, yaklaşık 1 saat">Tam kıvamında</button>
+                        <button type="button" data-pusula-value="birkaç bölüm art arda izlenecek uzun bir hikâye">Uzun soluklu</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question" data-pusula-group="company">
+                    <legend>Bu yolculuğa kimlerle çıkıyoruz?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="yalnız">Yalnız</button>
+                        <button type="button" data-pusula-value="baş başa">Baş başa</button>
+                        <button type="button" data-pusula-value="arkadaşlarımla">Arkadaşlarımla</button>
+                        <button type="button" data-pusula-value="ailemle">Ailemle</button>
+                    </div>
+                </fieldset>
+                <fieldset class="pusula-question pusula-question-wide" data-pusula-group="need" data-pusula-multiple>
+                    <legend><span data-pusula-daypart>Bu akşam</span> sana ne iyi gelir?</legend>
+                    <div class="pusula-choice-row">
+                        <button type="button" data-pusula-value="sakin, huzurlu ve yormayan bir hikâye">Kafa dinleyelim</button>
+                        <button type="button" data-pusula-value="hayatı sorgulatan, anlamlı ve ruha iyi gelen bir hikâye">Ruhumuza iyi gelsin</button>
+                        <button type="button" data-pusula-value="bol bol kahkaha atmak">Bolca kahkaha atalım</button>
+                        <button type="button" data-pusula-value="romantik, heyecanlı ve kalbi kıpırdatan bir hikâye">Kalbimiz kıpırdasın</button>
+                        <button type="button" data-pusula-value="duygulanmak ve biraz ağlamak">Birazcık ağlayalım</button>
+                        <button type="button" data-pusula-value="nostaljik, sıcak ve çocukluğu hatırlatan bir hikâye">Çocukluğumuza dönelim</button>
+                        <button type="button" data-pusula-value="fantastik bir evrene veya bambaşka bir dünyaya kaçmak">Başka bir dünyaya kaçalım</button>
+                        <button type="button" data-pusula-value="bilim kurgu ve geleceğe dair fikirler">Geleceğe ışınlanalım</button>
+                        <button type="button" data-pusula-value="kült, bilgi içeren veya yeni bir bakış açısı kazandıran bir yapım">Ufkumuz genişlesin</button>
+                        <button type="button" data-pusula-value="yüksek tempo ve soluksuz bir macera">Soluksuz izleyelim</button>
+                        <button type="button" data-pusula-value="karmaşık, şaşırtıcı ve zihni zorlayan bir hikâye">Beynimiz yansın!</button>
+                        <button type="button" data-pusula-value="korku, gerilim ve karanlık bir atmosfer">Karanlığa var mısın?</button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="pusula-chat" id="seriesPusulaChat" aria-live="polite" aria-label="Pusula sonuçları">
+                <div class="pusula-message pusula-message-ai">
+                    <span class="pusula-avatar" aria-hidden="true">✦</span>
+                    <div><strong>Pusula</strong><p>Bazen tek bir his yönünü bulmaya yeter. İstersen sana en uygun seçenekleri seç, istersen aklındakileri kendi cümlelerinle dök.</p></div>
+                </div>
+            </div>
+            <form id="seriesRecommendForm" class="pusula-composer">
+                <label for="seriesPusulaInput" class="visually-hidden">Pusula'ya mesajın</label>
+                <textarea id="seriesPusulaInput" name="message" rows="1" maxlength="600" placeholder="Aklından geçenleri paylaş…"></textarea>
+                <button type="submit" aria-label="Rotayı oluştur"><span>Yola çıkalım</span></button>
+            </form>
+        </section>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobil ana menü">
+        <a href="index.html"><span aria-hidden="true">✦</span><small>Filmler</small></a>
+        <a href="#seriesHero" class="is-active" aria-current="page"><span aria-hidden="true">⌕</span><small>Diziler</small></a>
+        <a href="#seriesTrending"><span aria-hidden="true">◈</span><small>Popüler</small></a>
+        <a href="series-list.html"><span class="list-menu-icon" aria-hidden="true"></span><small>Listem</small></a>
+    </nav>
+    <script src="series.js" defer></script>
+    <script src="navigation.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "seyir-atlasi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check movies.js && node --check series.js && node --check profile.js && node --check navigation.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
