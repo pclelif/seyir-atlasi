@@ -608,6 +608,11 @@ class LocalAccountManager {
             document.querySelector('#loginForm [name="email"]').value = email;
             this.showFeedback(result.message);
         } catch (error) {
+            if (error.code === "EMAIL_NOT_VERIFIED") {
+                this.session = null;
+                localStorage.removeItem(this.SESSION_KEY);
+                sessionStorage.removeItem(this.SESSION_KEY);
+            }
             this.showFeedback(error.message, true);
         } finally {
             this.setBusy(form, false);
@@ -741,17 +746,22 @@ class LocalAccountManager {
             return null;
         }
 
-        return (
-            this.accounts.find(
+        const account = this.accounts.find(
                 (account) => {
                     return account.id ===
                         this.session.accountId;
                 }
-            ) || null
-        );
+            ) || null;
+
+        return account?.emailVerified === true ? account : null;
     }
 
     showRecoveryForm(show = true) {
+        if (show) {
+            const loginEmail = document.querySelector('#loginForm [name="email"]')?.value || "";
+            const recoveryEmail = document.querySelector('#recoveryForm [name="email"]');
+            if (recoveryEmail && !recoveryEmail.value) recoveryEmail.value = loginEmail;
+        }
         document.getElementById("loginForm").hidden = show;
         document.getElementById("registerForm").hidden = true;
         document.getElementById("authTabs").hidden = show;

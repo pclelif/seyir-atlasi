@@ -136,6 +136,7 @@ function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, but
 <table class="email-canvas" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#0b1026" background="${safeBaseUrl}/images/email-stars.svg" style="width:100%;background-color:#0b1026!important;background-image:url('${safeBaseUrl}/images/email-stars.svg'),radial-gradient(circle at 20% 10%,rgba(55,74,145,.18),transparent 34%),linear-gradient(180deg,#0b1026 0%,#070b1b 100%);background-repeat:repeat,no-repeat,no-repeat;">
 <tr><td align="center" bgcolor="#0b1026" background="${safeBaseUrl}/images/email-stars.svg" style="padding:42px 16px;background-color:#0b1026!important;background-image:url('${safeBaseUrl}/images/email-stars.svg'),radial-gradient(circle at 20% 10%,rgba(55,74,145,.18),transparent 34%),linear-gradient(180deg,#0b1026 0%,#070b1b 100%);background-repeat:repeat,no-repeat,no-repeat;">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;">
+<tr><td aria-hidden="true" style="padding:0 8px 16px;color:#c7d2fe;font-size:15px;line-height:1;text-align:center;letter-spacing:10px;text-shadow:0 0 9px rgba(143,175,255,.85);">⋆ · ⋆ &nbsp; · ⋆ · &nbsp; ⋆</td></tr>
 <tr><td style="padding:0 8px 22px;text-align:center;">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"><tr><td width="34" valign="middle" style="padding-bottom:4px;"><a href="${safeBaseUrl}" style="display:block;text-decoration:none;"><img src="${safeBaseUrl}/images/logo-email.svg" width="34" height="34" alt="" style="display:block;width:34px;height:34px;border:0;"></a></td><td valign="middle" style="padding-left:3px;color:#cbd5e1;font-size:21px;font-weight:800;letter-spacing:-.4px;text-shadow:0 0 8px rgba(199,210,254,.4);"><a href="${safeBaseUrl}" style="color:#cbd5e1;text-decoration:none;">SeyirAtlası</a></td></tr></table>
 </td></tr>
@@ -189,7 +190,7 @@ async function createPurposeToken(userId, purpose) {
 async function currentUser(request) {
     const token = cookies(request)[SESSION_COOKIE];
     if (!token) return null;
-    const result = await pool.query(`SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = $1 AND s.expires_at > NOW()`, [tokenHash(token)]);
+    const result = await pool.query(`SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = $1 AND s.expires_at > NOW() AND u.email_verified_at IS NOT NULL`, [tokenHash(token)]);
     return result.rows[0] || null;
 }
 
@@ -376,7 +377,7 @@ export async function handleAuth(request, response, url) {
         if (request.method === "POST" && url.pathname === "/api/auth/login") {
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email = $1", [normalizeEmail(data.email)]); const user = result.rows[0];
             if (!user || !(await passwordMatches(String(data.password || ""), user.password_hash))) return reply(response, 401, { error: "E-posta veya şifre hatalı." }), true;
-            if (!user.email_verified_at) return reply(response, 403, { error: "Giriş yapmadan önce e-posta adresini doğrulamalısın.", code: "EMAIL_NOT_VERIFIED" }), true;
+            if (!user.email_verified_at) return reply(response, 403, { error: "Giriş yapmadan önce e-posta adresini doğrulamalısın.", code: "EMAIL_NOT_VERIFIED" }, { "Set-Cookie": cookieHeader("", request, 0) }), true;
             const token = randomBytes(32).toString("base64url"); const ttl = data.remember ? TOKEN_TTL.session : 24 * 60 * 60 * 1000;
             await pool.query("INSERT INTO sessions(user_id, token_hash, expires_at) VALUES($1,$2,$3)", [user.id, tokenHash(token), new Date(Date.now() + ttl)]);
             return reply(response, 200, { user: publicUser(user) }, { "Set-Cookie": cookieHeader(token, request, Math.floor(ttl / 1000)) }), true;
@@ -444,7 +445,7 @@ export async function handleAuth(request, response, url) {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email=$1", [normalizeEmail(data.email)]); const user = result.rows[0];
             if (user) { const token = await createPurposeToken(user.id, "reset"); const link = `${appUrl(request)}/profile.html?reset=${encodeURIComponent(token)}`; const emailContent = passwordResetEmail(request, user, link); await sendMail(user.email, emailContent.subject, emailContent.text, emailContent.html); }
-            return reply(response, 200, { message: "Adres kayıtlıysa şifre yenileme e-postası gönderildi." }), true;
+            return reply(response, 200, { message: "Adres kayıtlıysa şifre yenileme bağlantısı gönderildi. Gelen kutusu, spam ve tanıtımlar klasörünü kontrol et." }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/reset-password") {
             const data = await body(request); const password = String(data.password || ""); if (!validPassword(password)) return reply(response, 400, { error: "Yeni şifre güvenlik koşullarını karşılamıyor." }), true;

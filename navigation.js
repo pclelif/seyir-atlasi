@@ -286,12 +286,12 @@ class SideNavigation {
                     ) || "[]"
                 );
 
-            return (
-                accounts.find((account) => {
+            const account = accounts.find((account) => {
                     return account.id ===
                         session.accountId;
-                }) || null
-            );
+                }) || null;
+
+            return account?.emailVerified === true ? account : null;
         } catch {
             return null;
         }
