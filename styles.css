@@ -9570,6 +9570,10 @@ html:not([data-theme="light"]) .side-menu-brand img {
     color: #eab6c8;
 }
 
+[data-theme="light"] .profile-section-kicker {
+    color: #8f4568;
+}
+
 [data-theme="light"] .profile-hero .profile-edit-toggle {
     color: #ffffff;
     border-color: rgba(160, 224, 214, 0.28);
