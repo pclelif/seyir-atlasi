@@ -45,6 +45,7 @@ test("doğrulama e-postası markalı, güvenli ve doğru bağlantılıdır", () 
     assert.match(email.html, /images\/logo-email\.svg/);
     assert.match(email.html, /images\/email-stars\.svg/);
     assert.match(email.html, /E-posta adresimi doğrula/);
+    assert.match(email.html, /email-fallback-copy[^>]+color:#283247!important/);
     assert.match(email.html, /Elif &lt;script&gt;/);
     assert.doesNotMatch(email.html, /Elif <script>/);
     assert.match(email.html, new RegExp(link.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));

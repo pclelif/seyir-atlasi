@@ -155,7 +155,7 @@ function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, but
 </td></tr>
 <tr><td bgcolor="#c8ceda" style="padding:24px 46px;border-top:1px solid rgba(255,255,255,.18);background-color:#c8ceda!important;background-image:linear-gradient(135deg,#d9dde6 0%,#b7c0cf 100%);">
 <p style="margin:0 0 10px;color:#283247;font-size:12px;line-height:1.6;">${escapeEmailHtml(securityNote)}</p>
-<p style="margin:0;color:#283247;font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#304f9d;text-decoration:underline;">${safeLink}</a></p>
+<p class="email-fallback-copy" style="margin:0;color:#283247!important;-webkit-text-fill-color:#283247!important;font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#304f9d!important;-webkit-text-fill-color:#304f9d!important;text-decoration:underline;">${safeLink}</a></p>
 </td></tr></table>
 </td></tr>
 <tr><td style="padding:22px 20px 0;text-align:center;color:#94a3b8;font-size:11px;line-height:1.6;">⋆ &nbsp; Yeni hikâyelerle rotanı çiz. &nbsp; ⋆<br>Bu e-posta SeyirAtlası hesap işlemin için gönderildi.</td></tr>
