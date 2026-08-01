@@ -106,6 +106,11 @@ class MovieExplorer {
             this.loadTrendingMovies(),
             this.loadRandomMovies()
         ]);
+
+        const directMovieId = new URLSearchParams(window.location.search).get("film");
+        if (/^\d+$/.test(directMovieId || "")) {
+            this.openMovieModal(directMovieId);
+        }
     }
 
     updatePusulaTimeCopy() {

@@ -42,6 +42,8 @@ class SeriesExplorer {
         await this.loadGenres();
         this.renderLibrary();
         await Promise.all([this.loadTrending(), this.loadSeries()]);
+        const directSeriesId = new URLSearchParams(window.location.search).get("dizi");
+        if (/^\d+$/.test(directSeriesId || "")) this.openModal(directSeriesId);
     }
 
     updatePusulaTimeCopy() {
