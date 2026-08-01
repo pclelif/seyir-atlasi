@@ -89,12 +89,37 @@ function sameOrigin(request) {
 }
 
 async function sendMail(to, subject, text, html) {
+    if (process.env.BREVO_API_KEY && process.env.MAIL_FROM) {
+        const fromMatch = String(process.env.MAIL_FROM).match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+        const sender = fromMatch
+            ? { name: fromMatch[1] || "SeyirAtlası", email: fromMatch[2] }
+            : { name: "SeyirAtlası", email: String(process.env.MAIL_FROM).trim() };
+        const upstream = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "api-key": process.env.BREVO_API_KEY
+            },
+            body: JSON.stringify({ sender, to: [{ email: to }], subject, textContent: text, htmlContent: html }),
+            signal: AbortSignal.timeout(15_000)
+        });
+        if (!upstream.ok) {
+            const errorBody = await upstream.text();
+            throw new Error(`Brevo API ${upstream.status}: ${errorBody.slice(0, 300)}`);
+        }
+        return true;
+    }
     if (!mailer || !process.env.MAIL_FROM) {
         if (process.env.NODE_ENV !== "production") console.log(`[E-posta geliştirme modu] ${to}: ${text}`);
         return false;
     }
     await mailer.sendMail({ from: process.env.MAIL_FROM, to, subject, text, html });
     return true;
+}
+
+function emailConfigured() {
+    return Boolean(process.env.MAIL_FROM && (process.env.BREVO_API_KEY || mailer));
 }
 
 async function createPurposeToken(userId, purpose) {
@@ -169,7 +194,7 @@ export async function handleAuth(request, response, url) {
 
     try {
         if (request.method === "POST" && url.pathname === "/api/auth/register") {
-            if (!mailer || !process.env.MAIL_FROM) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
+            if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const name = String(data.name || "").trim().replace(/\s+/g, " "); const email = normalizeEmail(data.email); const password = String(data.password || "");
             if (name.length < 2 || name.length > 80 || !/^\S+@\S+\.\S+$/.test(email) || !validPassword(password)) return reply(response, 400, { error: "Bilgileri ve şifre koşullarını kontrol et." }), true;
             const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
@@ -177,7 +202,7 @@ export async function handleAuth(request, response, url) {
             const result = await pool.query("INSERT INTO users(name, email, password_hash) VALUES($1,$2,$3) RETURNING *", [name, email, await passwordHash(password)]);
             const token = await createPurposeToken(result.rows[0].id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`;
             await sendMail(email, "SeyirAtlası e-posta doğrulama", `E-posta adresini doğrula: ${link}`, `<h2>SeyirAtlası'na hoş geldin</h2><p>Hesabını etkinleştirmek için aşağıdaki bağlantıyı kullan:</p><p><a href="${link}">E-posta adresimi doğrula</a></p><p>Bağlantı 24 saat geçerlidir.</p>`);
-            return reply(response, 201, { message: "Hesabın oluşturuldu. E-postana gönderdiğimiz bağlantıyla hesabını doğrula.", emailSent: Boolean(mailer && process.env.MAIL_FROM) }), true;
+            return reply(response, 201, { message: "Hesabın oluşturuldu. E-postana gönderdiğimiz bağlantıyla hesabını doğrula.", emailSent: true }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/login") {
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email = $1", [normalizeEmail(data.email)]); const user = result.rows[0];
@@ -218,7 +243,7 @@ export async function handleAuth(request, response, url) {
             return reply(response, 200, { message: "Hesabın kalıcı olarak silindi." }, { "Set-Cookie": cookieHeader("", request, 0) }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/resend-verification") {
-            if (!mailer || !process.env.MAIL_FROM) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
+            if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email=$1", [normalizeEmail(data.email)]); const user = result.rows[0];
             if (user && !user.email_verified_at) { const token = await createPurposeToken(user.id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`; await sendMail(user.email, "SeyirAtlası e-posta doğrulama", `E-posta adresini doğrula: ${link}`, `<p><a href="${link}">E-posta adresimi doğrula</a></p>`); }
             return reply(response, 200, { message: "Adres kayıtlıysa doğrulama e-postası gönderildi." }), true;
@@ -229,7 +254,7 @@ export async function handleAuth(request, response, url) {
             response.writeHead(303, { Location: `/profile.html?verified=${result.rowCount ? "1" : "0"}` }); response.end(); return true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/forgot-password") {
-            if (!mailer || !process.env.MAIL_FROM) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
+            if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email=$1", [normalizeEmail(data.email)]); const user = result.rows[0];
             if (user) { const token = await createPurposeToken(user.id, "reset"); const link = `${appUrl(request)}/profile.html?reset=${encodeURIComponent(token)}`; await sendMail(user.email, "SeyirAtlası şifre yenileme", `Şifreni yenile: ${link}`, `<p><a href="${link}">Yeni şifre belirle</a></p><p>Bağlantı 1 saat geçerlidir.</p>`); }
             return reply(response, 200, { message: "Adres kayıtlıysa şifre yenileme e-postası gönderildi." }), true;

@@ -94,6 +94,7 @@ macOS'ta proje ile birlikte yerel Node.js çalışma zamanı bulunuyorsa
 | `SMTP_SECURE` | Hayır | Port 465 için `true`, STARTTLS/587 için `false` |
 | `SMTP_USER` / `SMTP_PASS` | Genellikle evet | SMTP kimlik bilgileri |
 | `MAIL_FROM` | E-posta için evet | Gönderen adı ve adresi |
+| `BREVO_API_KEY` | Ücretsiz Render'da e-posta için | SMTP portu yerine HTTPS üzerinden Brevo API anahtarı |
 
 Üç API anahtarı da yalnızca `server.js` tarafından `.env` dosyasından veya
 sunucu ortamından okunur. Tarayıcı TMDB ve OMDb'ye doğrudan bağlanmaz;
