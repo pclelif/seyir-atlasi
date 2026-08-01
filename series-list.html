@@ -56,11 +56,11 @@
 
         <section class="user-library-section" id="seriesLibraryContent" aria-labelledby="seriesFavoritesTitle">
             <div class="library-group">
-                <div class="library-group-heading"><h2 class="section-title" id="seriesFavoritesTitle">⋆ Favorilerim</h2></div>
+                <div class="library-group-heading"><h2 class="section-title" id="seriesFavoritesTitle">⋆ Favorilerim</h2><button type="button" data-share-series-list="favorites">Paylaş</button></div>
                 <div class="movies-grid library-grid" id="seriesFavoritesGrid"></div>
             </div>
             <div class="library-group">
-                <div class="library-group-heading"><h2 class="section-title">⋆ İzlediklerim</h2></div>
+                <div class="library-group-heading"><h2 class="section-title">⋆ İzlediklerim</h2><button type="button" data-share-series-list="watched">Paylaş</button></div>
                 <div class="movies-grid library-grid" id="seriesWatchedGrid"></div>
             </div>
             <section class="watch-lists-section">
@@ -71,7 +71,7 @@
                     <div><button type="submit">Listeyi Oluştur</button><button type="button" id="seriesCustomListCancel">Vazgeç</button></div>
                 </form>
                 <article class="custom-list-card default-watch-list">
-                    <header class="custom-list-header"><div><span id="seriesWatchlistCount">0 dizi</span><h3>Daha Sonra İzle</h3><p>İzlemeyi planladığın diziler.</p></div></header>
+                    <header class="custom-list-header"><div><span id="seriesWatchlistCount">0 dizi</span><h3>Daha Sonra İzle</h3><p>İzlemeyi planladığın diziler.</p></div><div class="custom-list-actions"><button type="button" data-share-series-list="watchlist">Paylaş</button></div></header>
                     <div class="movies-grid library-grid" id="seriesWatchlistGrid"></div>
                 </article>
                 <div class="custom-lists-container" id="seriesCustomListsContainer"></div>

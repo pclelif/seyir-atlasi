@@ -2,7 +2,7 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { handleAuth, initializeAuth } from "./auth.js";
+import { handleAuth, handleLibrary, initializeAuth } from "./auth.js";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const envPath = resolve(root, ".env");
@@ -314,6 +314,9 @@ const server = http.createServer(async (request, response) => {
     }
     if (url.pathname.startsWith("/api/auth/")) {
         return json(response, 503, { error: "Hesap sistemi henüz yapılandırılmadı." });
+    }
+    if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/")) && authReady) {
+        return handleLibrary(request, response, url);
     }
     if (request.method === "OPTIONS" && url.pathname === "/api/pusula") {
         response.writeHead(204);

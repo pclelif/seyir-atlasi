@@ -27,11 +27,11 @@ function reply(response, status, body, headers = {}) {
     response.end(JSON.stringify(body));
 }
 
-async function body(request) {
+async function body(request, maxBytes = 30_000) {
     let raw = "";
     for await (const chunk of request) {
         raw += chunk;
-        if (raw.length > 30_000) throw new Error("İstek çok büyük.");
+        if (raw.length > maxBytes) throw new Error("İstek çok büyük.");
     }
     return JSON.parse(raw || "{}");
 }
@@ -171,6 +171,27 @@ export async function initializeAuth() {
         );
         CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
         CREATE INDEX IF NOT EXISTS auth_tokens_lookup_idx ON auth_tokens(token_hash, purpose);
+        CREATE TABLE IF NOT EXISTS user_libraries (
+            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            media_type VARCHAR(8) NOT NULL CHECK (media_type IN ('movie', 'tv')),
+            data JSONB NOT NULL DEFAULT '{}'::jsonb,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (user_id, media_type)
+        );
+        CREATE TABLE IF NOT EXISTS shared_lists (
+            id BIGSERIAL PRIMARY KEY,
+            share_id VARCHAR(24) NOT NULL UNIQUE,
+            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            media_type VARCHAR(8) NOT NULL CHECK (media_type IN ('movie', 'tv')),
+            title VARCHAR(80) NOT NULL,
+            description VARCHAR(240) NOT NULL DEFAULT '',
+            items JSONB NOT NULL DEFAULT '[]'::jsonb,
+            ratings JSONB NOT NULL DEFAULT '{}'::jsonb,
+            is_public BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS shared_lists_user_id_idx ON shared_lists(user_id);
     `);
     if (process.env.SMTP_HOST) {
         mailer = nodemailer.createTransport({
@@ -184,6 +205,77 @@ export async function initializeAuth() {
         });
     }
     return true;
+}
+
+function cleanLibrary(value, mediaType) {
+    const data = value && typeof value === "object" ? value : {};
+    const cleanObject = (item) => item && typeof item === "object" && !Array.isArray(item) ? item : {};
+    const result = {
+        favorites: cleanObject(data.favorites),
+        watchlist: cleanObject(data.watchlist),
+        watched: cleanObject(data.watched),
+        customLists: cleanObject(data.customLists)
+    };
+    if (mediaType === "movie") result.ratings = cleanObject(data.ratings);
+    return result;
+}
+
+export async function handleLibrary(request, response, url) {
+    if (!pool) { reply(response, 503, { error: "Veritabanı hazır değil." }); return true; }
+    try {
+        const publicMatch = url.pathname.match(/^\/api\/lists\/public\/([A-Za-z0-9_-]{8,24})$/);
+        if (request.method === "GET" && publicMatch) {
+            const result = await pool.query(`SELECT s.share_id, s.media_type, s.title, s.description, s.items, s.ratings, s.updated_at, u.name AS owner_name, u.avatar AS owner_avatar FROM shared_lists s JOIN users u ON u.id=s.user_id WHERE s.share_id=$1 AND s.is_public=TRUE`, [publicMatch[1]]);
+            if (!result.rowCount) return reply(response, 404, { error: "Paylaşılan liste bulunamadı." }), true;
+            return reply(response, 200, { list: result.rows[0] }), true;
+        }
+        if (!["GET", "HEAD"].includes(request.method) && !sameOrigin(request)) return reply(response, 403, { error: "Geçersiz istek kaynağı." }), true;
+        const user = await currentUser(request);
+        if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
+
+        if (url.pathname === "/api/library" && request.method === "GET") {
+            const mediaType = url.searchParams.get("type");
+            if (!['movie', 'tv'].includes(mediaType)) return reply(response, 400, { error: "Geçersiz medya türü." }), true;
+            const result = await pool.query("SELECT data, updated_at FROM user_libraries WHERE user_id=$1 AND media_type=$2", [user.id, mediaType]);
+            return reply(response, 200, result.rowCount ? { exists: true, library: result.rows[0].data, updatedAt: result.rows[0].updated_at } : { exists: false, library: null }), true;
+        }
+        if (url.pathname === "/api/library" && request.method === "PUT") {
+            const data = await body(request, 2_500_000); const mediaType = String(data.type || "");
+            if (!['movie', 'tv'].includes(mediaType)) return reply(response, 400, { error: "Geçersiz medya türü." }), true;
+            const library = cleanLibrary(data.library, mediaType);
+            if (JSON.stringify(library).length > 2_000_000) return reply(response, 413, { error: "Koleksiyon çok büyük." }), true;
+            await pool.query(`INSERT INTO user_libraries(user_id,media_type,data) VALUES($1,$2,$3) ON CONFLICT(user_id,media_type) DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()`, [user.id, mediaType, library]);
+            return reply(response, 200, { message: "Koleksiyon eşitlendi." }), true;
+        }
+        if (url.pathname === "/api/lists/share" && request.method === "POST") {
+            const data = await body(request, 2_500_000); const mediaType = String(data.type || ""); const title = String(data.title || "").trim().slice(0,80); const description = String(data.description || "").trim().slice(0,240); const items = Array.isArray(data.items) ? data.items.slice(0,500) : [];
+            if (!['movie','tv'].includes(mediaType) || !title) return reply(response,400,{error:"Liste bilgileri geçersiz."}),true;
+            const shareId = randomBytes(9).toString("base64url");
+            await pool.query("INSERT INTO shared_lists(share_id,user_id,media_type,title,description,items,ratings) VALUES($1,$2,$3,$4,$5,$6,$7)", [shareId,user.id,mediaType,title,description,items,cleanLibrary({ratings:data.ratings},'movie').ratings]);
+            return reply(response,201,{ shareId, url:`${appUrl(request)}/shared-list.html?id=${shareId}` }),true;
+        }
+        if (url.pathname === "/api/lists/shares" && request.method === "GET") {
+            const result = await pool.query("SELECT share_id,media_type,title,description,jsonb_array_length(items) AS item_count,created_at,updated_at FROM shared_lists WHERE user_id=$1 AND is_public=TRUE ORDER BY updated_at DESC",[user.id]);
+            return reply(response,200,{shares:result.rows.map(row=>({...row,url:`${appUrl(request)}/shared-list.html?id=${row.share_id}`}))}),true;
+        }
+        const revokeMatch=url.pathname.match(/^\/api\/lists\/share\/([A-Za-z0-9_-]{8,24})$/);
+        if (request.method === "DELETE" && revokeMatch) {
+            const result=await pool.query("UPDATE shared_lists SET is_public=FALSE,updated_at=NOW() WHERE share_id=$1 AND user_id=$2 AND is_public=TRUE RETURNING id",[revokeMatch[1],user.id]);
+            if(!result.rowCount) return reply(response,404,{error:"Paylaşım bulunamadı."}),true;
+            return reply(response,200,{message:"Paylaşım bağlantısı kapatıldı."}),true;
+        }
+        if (publicMatch && request.method === "POST" && url.pathname.endsWith("/copy")) return reply(response,404,{error:"Uç nokta bulunamadı."}),true;
+        const copyMatch = url.pathname.match(/^\/api\/lists\/public\/([A-Za-z0-9_-]{8,24})\/copy$/);
+        if (request.method === "POST" && copyMatch) {
+            const shared = await pool.query("SELECT * FROM shared_lists WHERE share_id=$1 AND is_public=TRUE",[copyMatch[1]]);
+            if (!shared.rowCount) return reply(response,404,{error:"Paylaşılan liste bulunamadı."}),true;
+            const item=shared.rows[0]; const current=await pool.query("SELECT data FROM user_libraries WHERE user_id=$1 AND media_type=$2",[user.id,item.media_type]); const library=cleanLibrary(current.rows[0]?.data,item.media_type); const id=randomBytes(9).toString("base64url"); const collection=Object.fromEntries((item.items||[]).map(entry=>[String(entry.id),entry]));
+            library.customLists[id]={id,name:`${item.title} (kopya)`,description:item.description,[item.media_type==='movie'?'movies':'series']:collection,created_at:new Date().toISOString()};
+            await pool.query(`INSERT INTO user_libraries(user_id,media_type,data) VALUES($1,$2,$3) ON CONFLICT(user_id,media_type) DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()`,[user.id,item.media_type,library]);
+            return reply(response,201,{message:"Liste hesabına kopyalandı.",type:item.media_type}),true;
+        }
+        reply(response,404,{error:"Uç nokta bulunamadı."}); return true;
+    } catch (error) { console.error("Library:",error.message); reply(response,500,{error:"Liste işlemi tamamlanamadı."}); return true; }
 }
 
 export async function handleAuth(request, response, url) {

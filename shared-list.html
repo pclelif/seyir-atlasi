@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SeyirAtlası'nda paylaşılan film ve dizi listesi.">
+    <meta name="theme-color" content="#0B1026">
+    <title>Paylaşılan Liste · SeyirAtlası</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=3">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="stars" aria-hidden="true"></div><div class="twinkling-stars" aria-hidden="true"></div>
+    <nav class="navbar"><div class="navbar-inner"><a href="index.html" class="side-menu-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><div class="navbar-actions"><a class="shared-home-link" href="index.html">Keşfete dön</a></div></div></nav>
+    <main class="main-content inner-page shared-list-page">
+        <section class="shared-list-loading" id="sharedListLoading" role="status">Liste yükleniyor…</section>
+        <section id="sharedListContent" hidden>
+            <header class="page-header library-page-header shared-list-hero">
+                <div><span class="about-kicker" id="sharedOwner"></span><h1 id="sharedTitle">Paylaşılan liste</h1><p id="sharedDescription"></p><small id="sharedMeta"></small></div>
+                <div class="shared-list-actions"><button type="button" id="copySharedList">Listeme Kopyala</button><button type="button" id="copySharedLink">Bağlantıyı Kopyala</button></div>
+            </header>
+            <div class="movies-grid library-grid" id="sharedItems"></div>
+            <p class="account-feedback" id="sharedFeedback" role="status" aria-live="polite"></p>
+        </section>
+        <section class="library-auth-warning" id="sharedListError" hidden><h2>Liste bulunamadı</h2><p>Bağlantı kaldırılmış veya geçersiz olabilir.</p><a href="index.html">Keşfete dön</a></section>
+    </main>
+    <script src="shared-list.js" defer></script><script src="navigation.js" defer></script>
+</body>
+</html>

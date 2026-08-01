@@ -37,6 +37,7 @@ class SeriesExplorer {
         this.applyTheme(localStorage.getItem(this.themeKey) || "dark");
         this.setupEvents();
         this.setupYears();
+        await this.syncLibraryFromServer();
         this.renderLibrary();
         await this.loadGenres();
         this.renderLibrary();
@@ -178,6 +179,12 @@ class SeriesExplorer {
             const deleteList = event.target.closest("[data-delete-series-list]");
             if (deleteList) {
                 this.deleteCustomList(deleteList.dataset.deleteSeriesList);
+                return;
+            }
+            const shareList = event.target.closest("[data-share-series-list]");
+            if (shareList) {
+                event.stopPropagation();
+                this.shareSeriesList(shareList.dataset.shareSeriesList);
                 return;
             }
             const card = event.target.closest("[data-series-id]");
@@ -1148,6 +1155,52 @@ class SeriesExplorer {
 
     saveLibrary() {
         localStorage.setItem(this.libraryKey, JSON.stringify(this.library));
+        this.queueLibrarySync();
+    }
+
+    async syncLibraryFromServer() {
+        if (!this.accountId) return;
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/library?type=tv`, { credentials: "same-origin" });
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.exists && data.library) {
+                this.library = { favorites: {}, watchlist: {}, watched: {}, customLists: {}, ...data.library };
+                localStorage.setItem(this.libraryKey, JSON.stringify(this.library));
+                this.favorites = new Set(Object.keys(this.library.favorites));
+            } else {
+                await this.persistLibraryToServer();
+            }
+        } catch (error) { console.warn("Dizi koleksiyonu eşitlenemedi:", error.message); }
+    }
+
+    queueLibrarySync() {
+        if (!this.accountId) return;
+        clearTimeout(this.librarySyncTimer);
+        this.librarySyncTimer = setTimeout(() => this.persistLibraryToServer(), 350);
+    }
+
+    async persistLibraryToServer() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/library`, { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "tv", library: this.library }) });
+            if (!response.ok) throw new Error((await response.json()).error || "Senkronizasyon başarısız.");
+        } catch (error) { console.warn("Dizi koleksiyonu sunucuya kaydedilemedi:", error.message); window.showToast?.("Liste cihazda kaydedildi; sunucuyla daha sonra eşitlenecek.", "error"); }
+    }
+
+    async shareSeriesList(listKey) {
+        const builtIn = {
+            favorites: { title: "Favori Dizilerim", description: "En sevdiğim diziler.", series: this.library.favorites },
+            watched: { title: "İzlediğim Diziler", description: "Tamamladığım diziler.", series: this.library.watched },
+            watchlist: { title: "Daha Sonra İzle", description: "İzlemeyi planladığım diziler.", series: this.library.watchlist }
+        };
+        const list = builtIn[listKey] || this.library.customLists?.[String(listKey).replace(/^custom:/, "")];
+        if (!list) return;
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/lists/share`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "tv", title: list.title || list.name, description: list.description || "", items: Object.values(list.series || {}) }) });
+            const data = await response.json(); if (!response.ok) throw new Error(data.error || "Liste paylaşılamadı.");
+            if (navigator.share) await navigator.share({ title: `${list.title || list.name} · SeyirAtlası`, url: data.url });
+            else { await navigator.clipboard.writeText(data.url); window.showToast?.("Paylaşım bağlantısı kopyalandı."); }
+        } catch (error) { if (error?.name !== "AbortError") window.showToast?.(error.message, "error"); }
     }
 
     createStoredSeries(item) {
@@ -1265,7 +1318,7 @@ class SeriesExplorer {
         const lists = Object.values(this.library.customLists).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
         listsContainer.innerHTML = lists.map((list) => {
             const items = Object.values(list.series || {});
-            return `<article class="custom-list-card"><header class="custom-list-header"><div><span>${items.length} dizi</span><h3>${this.escape(list.name)}</h3>${list.description ? `<p>${this.escape(list.description)}</p>` : ""}</div><div class="custom-list-actions"><button type="button" data-delete-series-list="${this.escape(list.id)}">Sil</button></div></header><div class="movies-grid library-grid">${items.length ? items.map((item) => this.libraryCard(item, "", list.id)).join("") : `<p class="library-empty">Bu liste henüz boş. Dizi detayından bu listeye içerik ekleyebilirsin.</p>`}</div></article>`;
+            return `<article class="custom-list-card"><header class="custom-list-header"><div><span>${items.length} dizi</span><h3>${this.escape(list.name)}</h3>${list.description ? `<p>${this.escape(list.description)}</p>` : ""}</div><div class="custom-list-actions"><button type="button" data-share-series-list="custom:${this.escape(list.id)}">Paylaş</button><button type="button" data-delete-series-list="${this.escape(list.id)}">Sil</button></div></header><div class="movies-grid library-grid">${items.length ? items.map((item) => this.libraryCard(item, "", list.id)).join("") : `<p class="library-empty">Bu liste henüz boş. Dizi detayından bu listeye içerik ekleyebilirsin.</p>`}</div></article>`;
         }).join("");
     }
 

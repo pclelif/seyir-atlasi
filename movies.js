@@ -93,6 +93,7 @@ class MovieExplorer {
     async init() {
         this.updatePusulaTimeCopy();
         this.setupEventListeners();
+        await this.syncLibraryFromServer();
         this.renderUserLibrary();
         this.applyTheme(
             this.currentTheme
@@ -3945,15 +3946,32 @@ class MovieExplorer {
             return;
         }
 
-        const shareURL =
-            this.createSharedListURL(
-                listKey
-            );
-
         const selectedList =
             this.getShareableList(listKey);
 
-        if (!shareURL || !selectedList) {
+        if (!selectedList) {
+            return;
+        }
+
+        let shareURL;
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/lists/share`, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "movie",
+                    title: selectedList.title,
+                    description: selectedList.description,
+                    items: Object.values(selectedList.movies || {}),
+                    ratings: this.userLibrary.ratings || {}
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Liste paylaşılamadı.");
+            shareURL = data.url;
+        } catch (error) {
+            window.showToast?.(error.message, "error");
             return;
         }
 
@@ -4206,6 +4224,8 @@ class MovieExplorer {
                 JSON.stringify(this.userLibrary)
             );
 
+            this.queueLibrarySync();
+
             return true;
         } catch (error) {
             console.warn(
@@ -4218,6 +4238,39 @@ class MovieExplorer {
             );
 
             return false;
+        }
+    }
+
+    async syncLibraryFromServer() {
+        if (!this.getActiveAccountId() || this.isSharedView) return;
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/library?type=movie`, { credentials: "same-origin" });
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.exists && data.library) {
+                this.userLibrary = { favorites: {}, watchlist: {}, watched: {}, ratings: {}, customLists: {}, ...data.library };
+                localStorage.setItem(this.USER_LIBRARY_STORAGE_KEY, JSON.stringify(this.userLibrary));
+            } else {
+                await this.persistLibraryToServer();
+            }
+        } catch (error) {
+            console.warn("Film koleksiyonu eşitlenemedi:", error.message);
+        }
+    }
+
+    queueLibrarySync() {
+        if (!this.getActiveAccountId() || this.isSharedView) return;
+        clearTimeout(this.librarySyncTimer);
+        this.librarySyncTimer = setTimeout(() => this.persistLibraryToServer(), 350);
+    }
+
+    async persistLibraryToServer() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/library`, { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "movie", library: this.userLibrary }) });
+            if (!response.ok) throw new Error((await response.json()).error || "Senkronizasyon başarısız.");
+        } catch (error) {
+            console.warn("Film koleksiyonu sunucuya kaydedilemedi:", error.message);
+            window.showToast?.("Liste cihazda kaydedildi; sunucuyla daha sonra eşitlenecek.", "error");
         }
     }
 

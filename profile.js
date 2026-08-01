@@ -178,6 +178,7 @@ class LocalAccountManager {
         document.getElementById("securityToggle")?.addEventListener("click", () => { const panel = document.getElementById("profileSecurity"); panel.hidden = !panel.hidden; if (!panel.hidden) panel.scrollIntoView({ behavior: "smooth", block: "start" }); });
         document.getElementById("changePasswordForm")?.addEventListener("submit", (event) => this.handlePasswordChange(event));
         document.getElementById("deleteAccountBtn")?.addEventListener("click", () => this.handleAccountDelete());
+        document.getElementById("profileSharesList")?.addEventListener("click", (event) => { const button = event.target.closest("[data-revoke-share]"); if (button) this.revokeShare(button.dataset.revokeShare); });
 
         document
             .getElementById(
@@ -487,7 +488,9 @@ class LocalAccountManager {
             const { user } = await this.api("me", { method: "GET" });
             this.cacheAccount(user);
             this.startSession(user, true);
+            await this.syncProfileLibraries(user.id);
             this.render();
+            this.loadSharedLists();
         } catch {
             this.session = null;
             localStorage.removeItem(this.SESSION_KEY);
@@ -635,6 +638,13 @@ class LocalAccountManager {
             this.startSession(user, shouldRemember);
             form.reset();
             this.render();
+            const next = new URLSearchParams(location.search).get("next");
+            if (next) {
+                try {
+                    const destination = new URL(next, location.href);
+                    if (destination.origin === location.origin) location.href = destination.href;
+                } catch { /* Geçersiz yönlendirme yok sayılır. */ }
+            }
         } catch (error) {
             this.showFeedback(error.message, true);
             const resend = document.getElementById("resendVerificationBtn");
@@ -782,6 +792,35 @@ class LocalAccountManager {
             if (accountId) { localStorage.removeItem(`${this.LIBRARY_KEY}:${accountId}`); localStorage.removeItem(`seyirAtlasiSeriesLibrary:${accountId}`); }
             this.accounts = []; this.writeStorage(this.ACCOUNTS_KEY, []); this.session = null; localStorage.removeItem(this.SESSION_KEY); sessionStorage.removeItem(this.SESSION_KEY); this.render(); this.switchTab("login"); this.showFeedback("Hesabın kalıcı olarak silindi.");
         } catch (error) { window.showToast?.(error.message); }
+    }
+
+    async loadSharedLists() {
+        const container = document.getElementById("profileSharesList"); if (!container || !this.getCurrentAccount()) return;
+        try {
+            const response = await fetch("/api/lists/shares", { credentials: "same-origin" }); const data = await response.json(); if (!response.ok) throw new Error(data.error);
+            container.innerHTML = data.shares.length ? data.shares.map((share) => `<article class="profile-share-row"><div><strong>${this.escapeHTML(share.title)}</strong><small>${share.item_count} ${share.media_type === "movie" ? "film" : "dizi"}</small></div><div><a href="${share.url}" target="_blank" rel="noopener">Görüntüle</a><button type="button" data-revoke-share="${share.share_id}">Paylaşımı Kapat</button></div></article>`).join("") : `<p class="library-empty">Henüz bağlantıyla paylaştığın bir liste yok.</p>`;
+        } catch { container.innerHTML = `<p class="library-empty">Paylaşımlar şu anda yüklenemedi.</p>`; }
+    }
+
+    async syncProfileLibraries(accountId) {
+        try {
+            const [movies, series] = await Promise.all([
+                fetch("/api/library?type=movie", { credentials: "same-origin" }).then((response) => response.ok ? response.json() : null),
+                fetch("/api/library?type=tv", { credentials: "same-origin" }).then((response) => response.ok ? response.json() : null)
+            ]);
+            if (movies?.exists) localStorage.setItem(`${this.LIBRARY_KEY}:${accountId}`, JSON.stringify(movies.library));
+            if (series?.exists) localStorage.setItem(`seyirAtlasiSeriesLibrary:${accountId}`, JSON.stringify(series.library));
+        } catch { /* Yerel kopya çevrimdışı kullanım için korunur. */ }
+    }
+
+    async revokeShare(shareId) {
+        if (!confirm("Bu paylaşım bağlantısını kapatmak istiyor musun?")) return;
+        try { const response = await fetch(`/api/lists/share/${encodeURIComponent(shareId)}`, { method: "DELETE", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" }); const data = await response.json(); if (!response.ok) throw new Error(data.error); window.showToast?.(data.message); this.loadSharedLists(); }
+        catch (error) { window.showToast?.(error.message); }
+    }
+
+    escapeHTML(value) {
+        const node = document.createElement("span"); node.textContent = String(value || ""); return node.innerHTML;
     }
 
     getInitials(name) {
