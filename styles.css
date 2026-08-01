@@ -1421,14 +1421,14 @@ html:not([data-theme="light"]) .footer-brand img {
 
 [data-theme="light"] .recommend-trigger {
     color: #102a43;
-    border-color: #c99a32;
-    background: linear-gradient(135deg, #f3d58a, #d9a63b);
+    border-color: #ae9a48;
+    background: linear-gradient(135deg, #eee2a5, #c9b458);
 }
 
 [data-theme="light"] .recommend-trigger:hover {
     color: #102a43;
-    border-color: #b98927;
-    background: linear-gradient(135deg, #f7dda0, #e2b34d);
+    border-color: #9f8a38;
+    background: linear-gradient(135deg, #f3e9b8, #d3c16a);
 }
 
 [data-theme="light"] .about-content {
@@ -10324,9 +10324,8 @@ html:not([data-theme="light"]) .side-menu-brand img {
 [data-theme="light"] body.profile-body {
     color: var(--text);
     background:
-        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.72), transparent 28%),
-        radial-gradient(circle at 88% 18%, rgba(118, 203, 239, 0.22), transparent 32%),
-        linear-gradient(180deg, #edf9ff 0%, #e2f5ff 48%, #cfeeff 100%);
+        radial-gradient(circle at 85% 12%, rgba(112, 202, 241, 0.22), transparent 32%),
+        linear-gradient(180deg, #e3f5ff 0%, #d8f1ff 52%, #ccecff 100%);
 }
 
 [data-theme="light"] .navbar,
