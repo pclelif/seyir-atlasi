@@ -4057,8 +4057,9 @@ html:not([data-theme="light"]) .footer-brand img {
     opacity: 0.86;
 }
 
-.footer-legal { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; }
+.footer-legal { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 0; }
 .footer-legal a { color:var(--text-muted); font-size:.78rem; text-decoration:none; }
+.footer-legal a + a::before { content:"·"; display:inline-block; margin:0 9px; color:var(--text-muted); }
 .footer-legal a:hover { color:var(--text); text-decoration:underline; }
 .register-disclosure { margin:2px 0 0; color:var(--text-muted); font-size:.8rem; line-height:1.55; }
 .register-disclosure a,.terms-option a { color:var(--primary); font-weight:700; text-underline-offset:3px; }
