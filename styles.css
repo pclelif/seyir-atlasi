@@ -3038,6 +3038,7 @@ html:not([data-theme="light"]) .footer-brand img {
 .custom-avatar-preview img { width:100%; height:100%; object-fit:cover; }
 .custom-avatar-preview img[hidden],.custom-avatar-preview.has-image span { display:none; }
 .custom-avatar-upload strong,.custom-avatar-upload small { display:block; }
+.custom-avatar-upload strong { margin-bottom:9px; }
 .custom-avatar-upload small { margin:4px 0 9px; color:var(--text-muted); font-size:.72rem; }
 .custom-avatar-upload label { display:inline-flex; padding:8px 11px; border:1px solid var(--border-strong); border-radius:9px; color:var(--primary-light); font-size:.78rem; font-weight:750; cursor:pointer; }
 
