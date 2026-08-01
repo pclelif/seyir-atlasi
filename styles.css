@@ -6261,6 +6261,7 @@ select:focus-visible {
 }
 
 .pusula-ai-badge span {
+    color: var(--pusula-gold-light, #f6d98c);
     font-size: 0.72rem;
 }
 
