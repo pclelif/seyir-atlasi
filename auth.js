@@ -130,34 +130,34 @@ function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, but
     const safeBaseUrl = escapeEmailHtml(baseUrl);
     const safeLink = escapeEmailHtml(link);
     return `<!doctype html>
-<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEmailHtml(title)}</title></head>
-<body style="margin:0;padding:0;background:#080d23;color:#f7f8ff;font-family:Arial,'Helvetica Neue',sans-serif;">
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>${escapeEmailHtml(title)}</title><style>:root{color-scheme:dark;supported-color-schemes:dark}body,.email-canvas{background-color:#080d23!important}.email-white{color:#fff!important;-webkit-text-fill-color:#fff!important}.email-muted{color:#f1f4ff!important;-webkit-text-fill-color:#f1f4ff!important}</style></head>
+<body bgcolor="#080d23" style="margin:0;padding:0;background-color:#080d23!important;color:#fff;font-family:Arial,'Helvetica Neue',sans-serif;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeEmailHtml(preview)}</div>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#080d23;background-image:radial-gradient(circle at 18% 12%,rgba(143,175,255,.2),transparent 28%),radial-gradient(circle at 82% 20%,rgba(78,203,190,.12),transparent 24%);">
-<tr><td align="center" style="padding:42px 16px;">
+<table class="email-canvas" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#080d23" style="width:100%;background-color:#080d23!important;background-image:radial-gradient(circle at 8% 14%,rgba(255,255,255,.78) 0,rgba(255,255,255,.78) 1px,transparent 2px),radial-gradient(circle at 22% 38%,rgba(143,175,255,.75) 0,rgba(143,175,255,.75) 1px,transparent 2px),radial-gradient(circle at 78% 12%,rgba(255,255,255,.7) 0,rgba(255,255,255,.7) 1px,transparent 2px),radial-gradient(circle at 92% 46%,rgba(199,210,254,.72) 0,rgba(199,210,254,.72) 1px,transparent 2px),radial-gradient(circle at 50% 85%,rgba(255,255,255,.62) 0,rgba(255,255,255,.62) 1px,transparent 2px),linear-gradient(180deg,#0b1230 0%,#070b1e 100%);">
+<tr><td align="center" bgcolor="#080d23" style="padding:42px 16px;background-color:#080d23!important;background-image:radial-gradient(circle at 8% 14%,rgba(255,255,255,.78) 0,rgba(255,255,255,.78) 1px,transparent 2px),radial-gradient(circle at 22% 38%,rgba(143,175,255,.75) 0,rgba(143,175,255,.75) 1px,transparent 2px),radial-gradient(circle at 78% 12%,rgba(255,255,255,.7) 0,rgba(255,255,255,.7) 1px,transparent 2px),radial-gradient(circle at 92% 46%,rgba(199,210,254,.72) 0,rgba(199,210,254,.72) 1px,transparent 2px),linear-gradient(180deg,#0b1230 0%,#070b1e 100%);">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;">
 <tr><td style="padding:0 8px 22px;text-align:center;">
-<a href="${safeBaseUrl}" style="display:inline-block;color:#fff;text-decoration:none;font-size:21px;font-weight:800;letter-spacing:-.3px;"><img src="${safeBaseUrl}/images/logo.svg" width="42" height="42" alt="" style="display:inline-block;width:42px;height:42px;margin-right:10px;vertical-align:middle;border:0;"><span style="vertical-align:middle;">SeyirAtlası</span></a>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"><tr><td width="34" valign="middle"><a href="${safeBaseUrl}" style="display:block;text-decoration:none;"><img src="${safeBaseUrl}/images/logo-email.svg" width="34" height="34" alt="" style="display:block;width:34px;height:34px;border:0;"></a></td><td class="email-white" valign="middle" style="padding-left:3px;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:21px;font-weight:800;letter-spacing:-.4px;text-shadow:0 0 8px rgba(199,210,254,.58),0 0 20px rgba(143,175,255,.34);"><a href="${safeBaseUrl}" style="color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration:none;">SeyirAtlası</a></td></tr></table>
 </td></tr>
-<tr><td style="overflow:hidden;border:1px solid rgba(206,224,228,.16);border-radius:24px;background:#15172e;background-image:radial-gradient(circle at 13% 20%,rgba(242,152,171,.3),transparent 30%),radial-gradient(circle at 83% 16%,rgba(78,203,190,.22),transparent 31%),radial-gradient(circle at 70% 108%,rgba(230,185,82,.2),transparent 35%),linear-gradient(128deg,#321c3d 0%,#172c3c 55%,#15172e 100%);box-shadow:0 24px 70px rgba(0,0,0,.35);">
+<tr><td bgcolor="#15172e" style="overflow:hidden;border:1px solid rgba(206,224,228,.16);border-radius:24px;background-color:#15172e!important;background-image:radial-gradient(circle at 13% 20%,rgba(242,152,171,.3),transparent 30%),radial-gradient(circle at 83% 16%,rgba(78,203,190,.22),transparent 31%),radial-gradient(circle at 70% 108%,rgba(230,185,82,.2),transparent 35%),linear-gradient(128deg,#321c3d 0%,#172c3c 55%,#15172e 100%);box-shadow:0 24px 70px rgba(0,0,0,.35);">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
 <tr><td style="height:7px;background:linear-gradient(90deg,#f298ab 0%,#728be4 36%,#4ecbbe 68%,#e6b952 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
 <tr><td style="padding:46px 46px 18px;">
-<div style="margin-bottom:20px;color:#eab6c8;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">${escapeEmailHtml(eyebrow)}</div>
-<h1 style="margin:0 0 18px;color:#fff;font-size:34px;line-height:1.15;letter-spacing:-1px;">${escapeEmailHtml(title)}</h1>
-<p style="margin:0 0 12px;color:#f3f5ff;font-size:17px;line-height:1.65;">${escapeEmailHtml(greeting)}</p>
-<p style="margin:0;color:rgba(226,232,240,.82);font-size:15px;line-height:1.75;">${escapeEmailHtml(message)}</p>
+<div class="email-white" style="margin-bottom:20px;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">${escapeEmailHtml(eyebrow)}</div>
+<h1 class="email-white" style="margin:0 0 18px;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:34px;line-height:1.15;letter-spacing:-1px;">${escapeEmailHtml(title)}</h1>
+<p class="email-white" style="margin:0 0 12px;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:17px;line-height:1.65;">${escapeEmailHtml(greeting)}</p>
+<p class="email-muted" style="margin:0;color:#f1f4ff!important;-webkit-text-fill-color:#f1f4ff!important;font-size:15px;line-height:1.75;">${escapeEmailHtml(message)}</p>
 </td></tr>
 <tr><td style="padding:12px 46px 34px;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:12px;background:#8fafff;background-image:linear-gradient(135deg,#a9bdff,#7899f2);"><a href="${safeLink}" style="display:inline-block;padding:15px 24px;color:#101633;font-size:15px;font-weight:800;text-decoration:none;">${escapeEmailHtml(buttonLabel)} &nbsp;→</a></td></tr></table>
-<p style="margin:20px 0 0;color:rgba(226,232,240,.68);font-size:13px;line-height:1.6;">${escapeEmailHtml(expiry)}</p>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="#607ddd" style="border-radius:12px;background-color:#607ddd!important;background-image:linear-gradient(135deg,#7896ee,#526fcf);"><a class="email-white" href="${safeLink}" style="display:inline-block;padding:15px 24px;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:15px;font-weight:800;text-decoration:none;">${escapeEmailHtml(buttonLabel)} &nbsp;→</a></td></tr></table>
+<p class="email-muted" style="margin:20px 0 0;color:#f1f4ff!important;-webkit-text-fill-color:#f1f4ff!important;font-size:13px;line-height:1.6;">${escapeEmailHtml(expiry)}</p>
 </td></tr>
-<tr><td style="padding:24px 46px;border-top:1px solid rgba(255,255,255,.09);background:rgba(5,10,28,.2);">
-<p style="margin:0 0 10px;color:rgba(226,232,240,.74);font-size:12px;line-height:1.6;">${escapeEmailHtml(securityNote)}</p>
-<p style="margin:0;color:rgba(226,232,240,.52);font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#a9bdff;text-decoration:none;">${safeLink}</a></p>
+<tr><td bgcolor="#0e1730" style="padding:24px 46px;border-top:1px solid rgba(255,255,255,.09);background-color:#0e1730!important;background-image:radial-gradient(circle at 12% 24%,rgba(255,255,255,.11) 0,rgba(255,255,255,.11) 1px,transparent 2px),radial-gradient(circle at 88% 70%,rgba(143,175,255,.16) 0,rgba(143,175,255,.16) 1px,transparent 2px);">
+<p class="email-muted" style="margin:0 0 10px;color:#f1f4ff!important;-webkit-text-fill-color:#f1f4ff!important;font-size:12px;line-height:1.6;">${escapeEmailHtml(securityNote)}</p>
+<p class="email-muted" style="margin:0;color:#f1f4ff!important;-webkit-text-fill-color:#f1f4ff!important;font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#fff!important;-webkit-text-fill-color:#fff!important;text-decoration:underline;">${safeLink}</a></p>
 </td></tr></table>
 </td></tr>
-<tr><td style="padding:22px 20px 0;text-align:center;color:#7f89aa;font-size:11px;line-height:1.6;">✦ &nbsp; Yeni hikâyelerle rotanı çiz. &nbsp; ✦<br>Bu e-posta SeyirAtlası hesap işlemin için gönderildi.</td></tr>
+<tr><td class="email-white" style="padding:22px 20px 0;text-align:center;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;line-height:1.6;">⋆ &nbsp; Yeni hikâyelerle rotanı çiz. &nbsp; ⋆<br>Bu e-posta SeyirAtlası hesap işlemin için gönderildi.</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
