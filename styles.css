@@ -9406,12 +9406,12 @@ html:not([data-theme="light"]) .side-menu-brand img {
     filter:
         brightness(0)
         saturate(100%)
-        invert(38%)
-        sepia(42%)
-        saturate(930%)
-        hue-rotate(5deg)
-        brightness(84%)
-        contrast(91%);
+        invert(35%)
+        sepia(82%)
+        saturate(744%)
+        hue-rotate(158deg)
+        brightness(91%)
+        contrast(88%);
 }
 
 [data-theme="light"] .recommend-dialog .pusula-question,
@@ -10324,7 +10324,8 @@ html:not([data-theme="light"]) .side-menu-brand img {
 [data-theme="light"] body.profile-body {
     color: var(--text);
     background:
-        radial-gradient(circle at 85% 12%, rgba(112, 202, 241, 0.22), transparent 32%),
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.42), transparent 30%),
+        radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.42), transparent 30%),
         linear-gradient(180deg, #e3f5ff 0%, #d8f1ff 52%, #ccecff 100%);
 }
 
