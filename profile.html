@@ -171,7 +171,7 @@
             </form>
 
             <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
-            <p class="local-account-note">Hesabın güvenli sunucu oturumu ve doğrulanmış e-posta ile korunur.</p>
+            <p class="local-account-note">Hesabını kullanabilmek için e-posta adresini doğrulaman gerekir.</p>
         </section>
 
         <section class="profile-dashboard" id="profileView" hidden>
@@ -293,9 +293,15 @@
                     </div>
                 </section>
 
+                <div class="profile-account-setting">
+                    <div>
+                        <strong>Şifreni yenile</strong>
+                        <p>Mevcut şifreni değiştir veya hesabını yönet.</p>
+                    </div>
+                    <button type="button" class="profile-security-toggle" id="securityToggle">Şifreni Yenile</button>
+                </div>
                 <footer class="profile-footer-actions">
-                    <p>Hesabın doğrulanmış e-posta ve güvenli oturum ile korunur.</p>
-                    <button type="button" class="profile-security-toggle" id="securityToggle">Şifre ve güvenlik</button>
+                    <p>SeyirAtlası hesabından güvenle çıkış yap.</p>
                     <button type="button" class="profile-logout" id="logoutBtn">Çıkış Yap</button>
                 </footer>
                 <section class="profile-security" id="profileSecurity" hidden aria-labelledby="securityTitle">
