@@ -2,6 +2,7 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleAuth, initializeAuth } from "./auth.js";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const envPath = resolve(root, ".env");
@@ -23,6 +24,10 @@ const host = process.env.HOST || "127.0.0.1";
 const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 const rateBuckets = new Map();
 const dataRateBuckets = new Map();
+const authReady = await initializeAuth().catch((error) => {
+    console.error("Veritabanı başlatılamadı:", error.message);
+    return false;
+});
 
 const tmdbAllowedPaths = [
     /^\/genre\/(?:movie|tv)\/list$/,
@@ -304,6 +309,12 @@ const server = http.createServer(async (request, response) => {
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     }
+    if (url.pathname.startsWith("/api/auth/") && authReady) {
+        return handleAuth(request, response, url);
+    }
+    if (url.pathname.startsWith("/api/auth/")) {
+        return json(response, 503, { error: "Hesap sistemi henüz yapılandırılmadı." });
+    }
     if (request.method === "OPTIONS" && url.pathname === "/api/pusula") {
         response.writeHead(204);
         return response.end();
@@ -323,7 +334,7 @@ const server = http.createServer(async (request, response) => {
 
     const requested = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
     const filePath = resolve(root, requested);
-    const privateFiles = new Set(["server.js", "package.json", "package-lock.json", "README.md"]);
+    const privateFiles = new Set(["server.js", "auth.js", "package.json", "package-lock.json", "README.md"]);
     if (
         !filePath.startsWith(root + sep) ||
         requested.startsWith(".") ||

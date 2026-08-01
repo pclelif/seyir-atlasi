@@ -60,7 +60,7 @@
                 <p>Listelerini düzenlemek ve profilini oluşturmak için yerel hesabına giriş yap.</p>
             </div>
 
-            <div class="account-tabs" role="tablist" aria-label="Hesap işlemleri">
+            <div class="account-tabs" id="authTabs" role="tablist" aria-label="Hesap işlemleri">
                 <button type="button" class="account-tab is-active" data-auth-tab="login" role="tab" aria-selected="true">Giriş Yap</button>
                 <button type="button" class="account-tab" data-auth-tab="register" role="tab" aria-selected="false">Profil Oluştur</button>
             </div>
@@ -90,6 +90,8 @@
                     <span>Beni hatırla</span>
                 </label>
                 <button type="submit" class="account-submit">Giriş Yap</button>
+                <button type="button" class="account-link-button" id="forgotPasswordBtn">Şifremi unuttum</button>
+                <button type="button" class="account-link-button" id="resendVerificationBtn" hidden>Doğrulama e-postasını yeniden gönder</button>
             </form>
 
             <form class="account-form" id="registerForm" hidden>
@@ -109,7 +111,7 @@
                             id="registerPassword"
                             name="password"
                             autocomplete="new-password"
-                            minlength="8"
+                            minlength="10"
                             aria-describedby="passwordRequirements"
                             required>
                         <button type="button" class="password-toggle" data-password-toggle aria-label="Şifreyi göster">
@@ -128,7 +130,7 @@
                         </div>
                     </div>
                     <ul class="password-checklist">
-                        <li data-password-rule="length"><span>✓</span> En az 8 karakter</li>
+                        <li data-password-rule="length"><span>✓</span> En az 10 karakter</li>
                         <li data-password-rule="uppercase"><span>✓</span> 1 büyük harf</li>
                         <li data-password-rule="lowercase"><span>✓</span> 1 küçük harf</li>
                         <li data-password-rule="number"><span>✓</span> 1 rakam</li>
@@ -142,7 +144,7 @@
                             id="registerPasswordConfirm"
                             name="passwordConfirm"
                             autocomplete="new-password"
-                            minlength="8"
+                            minlength="10"
                             required>
                         <button type="button" class="password-toggle" data-password-toggle aria-label="Şifre tekrarını göster">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -155,8 +157,21 @@
                 <button type="submit" class="account-submit">Profil Oluştur</button>
             </form>
 
+            <form class="account-form" id="recoveryForm" hidden>
+                <div class="account-form-heading"><h2>Şifreni yenile</h2><p>Kayıtlı adresine güvenli bir yenileme bağlantısı göndereceğiz.</p></div>
+                <label><span>E-posta</span><input type="email" name="email" autocomplete="email" required></label>
+                <button type="submit" class="account-submit">Yenileme Bağlantısı Gönder</button>
+                <button type="button" class="account-link-button" id="recoveryCancel">Giriş ekranına dön</button>
+            </form>
+
+            <form class="account-form" id="resetPasswordForm" hidden>
+                <div class="account-form-heading"><h2>Yeni şifre belirle</h2><p>En az 10 karakter, büyük/küçük harf ve rakam kullan.</p></div>
+                <label><span>Yeni şifre</span><span class="password-input-wrap"><input type="password" name="password" autocomplete="new-password" minlength="10" required><button type="button" class="password-toggle" data-password-toggle aria-label="Şifreyi göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>
+                <button type="submit" class="account-submit">Şifremi Güvenle Yenile</button>
+            </form>
+
             <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
-            <p class="local-account-note">Hesap verilerin yalnızca bu tarayıcıda saklanır.</p>
+            <p class="local-account-note">Hesabın güvenli sunucu oturumu ve doğrulanmış e-posta ile korunur.</p>
         </section>
 
         <section class="profile-dashboard" id="profileView" hidden>
@@ -279,9 +294,19 @@
                 </section>
 
                 <footer class="profile-footer-actions">
-                    <p>Hesap verilerin yalnızca bu tarayıcıda saklanır.</p>
+                    <p>Hesabın doğrulanmış e-posta ve güvenli oturum ile korunur.</p>
+                    <button type="button" class="profile-security-toggle" id="securityToggle">Şifre ve güvenlik</button>
                     <button type="button" class="profile-logout" id="logoutBtn">Çıkış Yap</button>
                 </footer>
+                <section class="profile-security" id="profileSecurity" hidden aria-labelledby="securityTitle">
+                    <div class="profile-section-heading"><div><span class="profile-section-kicker">Hesap güvenliği</span><h2 id="securityTitle">Şifre ve hesap</h2></div></div>
+                    <form id="changePasswordForm" class="security-form">
+                        <label><span>Mevcut şifre</span><input type="password" name="currentPassword" autocomplete="current-password" required></label>
+                        <label><span>Yeni şifre</span><input type="password" name="newPassword" autocomplete="new-password" minlength="10" required></label>
+                        <button type="submit">Şifreyi Güncelle</button>
+                    </form>
+                    <div class="danger-zone"><div><strong>Hesabı sil</strong><p>Profil ve oturum verilerin kalıcı olarak silinir.</p></div><button type="button" id="deleteAccountBtn">Hesabımı Sil</button></div>
+                </section>
             </div>
         </section>
     </main>

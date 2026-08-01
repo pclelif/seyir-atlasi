@@ -16,6 +16,8 @@ class LocalAccountManager {
         this.setupTheme();
         this.setupEvents();
         this.render();
+        this.restoreServerSession();
+        this.handleUrlState();
     }
 
     readStorage(key, fallbackValue) {
@@ -167,6 +169,15 @@ class LocalAccountManager {
                     this.logout();
                 }
             );
+
+        document.getElementById("forgotPasswordBtn")?.addEventListener("click", () => this.showRecoveryForm());
+        document.getElementById("recoveryCancel")?.addEventListener("click", () => this.showRecoveryForm(false));
+        document.getElementById("recoveryForm")?.addEventListener("submit", (event) => this.handleRecovery(event));
+        document.getElementById("resetPasswordForm")?.addEventListener("submit", (event) => this.handlePasswordReset(event));
+        document.getElementById("resendVerificationBtn")?.addEventListener("click", () => this.resendVerification());
+        document.getElementById("securityToggle")?.addEventListener("click", () => { const panel = document.getElementById("profileSecurity"); panel.hidden = !panel.hidden; if (!panel.hidden) panel.scrollIntoView({ behavior: "smooth", block: "start" }); });
+        document.getElementById("changePasswordForm")?.addEventListener("submit", (event) => this.handlePasswordChange(event));
+        document.getElementById("deleteAccountBtn")?.addEventListener("click", () => this.handleAccountDelete());
 
         document
             .getElementById(
@@ -330,7 +341,7 @@ class LocalAccountManager {
     getPasswordRules(password) {
         return {
             length:
-                password.length >= 8,
+                password.length >= 10,
             uppercase:
                 /[A-ZÇĞİÖŞÜ]/.test(
                     password
@@ -444,6 +455,57 @@ class LocalAccountManager {
             confirmation.value === password;
     }
 
+    async api(path, options = {}) {
+        const response = await fetch(`/api/auth/${path}`, {
+            credentials: "same-origin",
+            ...options,
+            headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const error = new Error(data.error || "İşlem tamamlanamadı.");
+            error.code = data.code;
+            throw error;
+        }
+        return data;
+    }
+
+    setBusy(form, busy) {
+        form.querySelectorAll("button, input").forEach((element) => { element.disabled = busy; });
+        form.setAttribute("aria-busy", String(busy));
+    }
+
+    async restoreServerSession() {
+        try {
+            const { user } = await this.api("me", { method: "GET" });
+            this.cacheAccount(user);
+            this.startSession(user, true);
+            this.render();
+        } catch {
+            this.session = null;
+            localStorage.removeItem(this.SESSION_KEY);
+            sessionStorage.removeItem(this.SESSION_KEY);
+            this.render();
+        }
+    }
+
+    handleUrlState() {
+        const params = new URLSearchParams(location.search);
+        if (params.get("verified") === "1") this.showFeedback("E-posta adresin doğrulandı. Şimdi giriş yapabilirsin.");
+        if (params.get("verified") === "0") this.showFeedback("Doğrulama bağlantısı geçersiz veya süresi dolmuş.", true);
+        if (params.has("reset")) {
+            document.getElementById("authTabs").hidden = true;
+            document.getElementById("loginForm").hidden = true;
+            document.getElementById("registerForm").hidden = true;
+            document.getElementById("resetPasswordForm").hidden = false;
+        }
+    }
+
+    cacheAccount(account) {
+        this.accounts = [{ ...account }];
+        this.writeStorage(this.ACCOUNTS_KEY, this.accounts);
+    }
+
     async handleRegister(event) {
         event.preventDefault();
 
@@ -509,62 +571,20 @@ class LocalAccountManager {
             return;
         }
 
-        if (
-            this.accounts.some(
-                (account) => {
-                    return account.email ===
-                        email;
-                }
-            )
-        ) {
-            this.showFeedback(
-                "Bu e-posta ile daha önce profil oluşturulmuş.",
-                true
-            );
-
-            return;
+        this.setBusy(event.currentTarget, true);
+        try {
+            const result = await this.api("register", { method: "POST", body: JSON.stringify({ name, email, password }) });
+            event.currentTarget.reset();
+            this.validatePasswordConfirmation();
+            this.updatePasswordSecurity("");
+            this.switchTab("login");
+            document.querySelector('#loginForm [name="email"]').value = email;
+            this.showFeedback(result.message);
+        } catch (error) {
+            this.showFeedback(error.message, true);
+        } finally {
+            this.setBusy(event.currentTarget, false);
         }
-
-        const salt =
-            this.createSalt();
-
-        const passwordHash =
-            await this.hashPassword(
-                password,
-                salt
-            );
-
-        const account = {
-            id:
-                crypto.randomUUID?.() ||
-                `${Date.now()}`,
-            name,
-            email,
-            salt,
-            passwordHash,
-            avatar:
-                "images/avatar/1.svg",
-            createdAt:
-                new Date().toISOString()
-        };
-
-        this.accounts.push(account);
-
-        if (
-            !this.writeStorage(
-                this.ACCOUNTS_KEY,
-                this.accounts
-            )
-        ) {
-            this.accounts.pop();
-            return;
-        }
-
-        this.startSession(account);
-        event.currentTarget.reset();
-        this.validatePasswordConfirmation();
-        this.updatePasswordSecurity("");
-        this.render();
     }
 
     async handleLogin(event) {
@@ -587,47 +607,20 @@ class LocalAccountManager {
             formData.get("remember") ===
             "on";
 
-        const account =
-            this.accounts.find(
-                (item) => {
-                    return item.email ===
-                        email;
-                }
-            );
-
-        if (!account) {
-            this.showFeedback(
-                "E-posta veya şifre hatalı.",
-                true
-            );
-
-            return;
+        this.setBusy(event.currentTarget, true);
+        try {
+            const { user } = await this.api("login", { method: "POST", body: JSON.stringify({ email, password, remember: shouldRemember }) });
+            this.cacheAccount(user);
+            this.startSession(user, shouldRemember);
+            event.currentTarget.reset();
+            this.render();
+        } catch (error) {
+            this.showFeedback(error.message, true);
+            const resend = document.getElementById("resendVerificationBtn");
+            if (resend) { resend.hidden = error.code !== "EMAIL_NOT_VERIFIED"; resend.dataset.email = email; }
+        } finally {
+            this.setBusy(event.currentTarget, false);
         }
-
-        const passwordHash =
-            await this.hashPassword(
-                password,
-                account.salt
-            );
-
-        if (
-            passwordHash !==
-            account.passwordHash
-        ) {
-            this.showFeedback(
-                "E-posta veya şifre hatalı.",
-                true
-            );
-
-            return;
-        }
-
-        this.startSession(
-            account,
-            shouldRemember
-        );
-        event.currentTarget.reset();
-        this.render();
     }
 
     startSession(
@@ -695,7 +688,8 @@ class LocalAccountManager {
         }
     }
 
-    logout() {
+    async logout() {
+        try { await this.api("logout", { method: "POST", body: "{}" }); } catch { /* Yerel oturum yine kapatılır. */ }
         this.session = null;
         localStorage.removeItem(
             this.SESSION_KEY
@@ -720,6 +714,53 @@ class LocalAccountManager {
                 }
             ) || null
         );
+    }
+
+    showRecoveryForm(show = true) {
+        document.getElementById("loginForm").hidden = show;
+        document.getElementById("registerForm").hidden = true;
+        document.getElementById("authTabs").hidden = show;
+        document.getElementById("recoveryForm").hidden = !show;
+        this.showFeedback("");
+    }
+
+    async handleRecovery(event) {
+        event.preventDefault(); this.setBusy(event.currentTarget, true);
+        try { const data = await this.api("forgot-password", { method: "POST", body: JSON.stringify({ email: new FormData(event.currentTarget).get("email") }) }); this.showFeedback(data.message); }
+        catch (error) { this.showFeedback(error.message, true); }
+        finally { this.setBusy(event.currentTarget, false); }
+    }
+
+    async handlePasswordReset(event) {
+        event.preventDefault(); const password = String(new FormData(event.currentTarget).get("password"));
+        this.setBusy(event.currentTarget, true);
+        try { const data = await this.api("reset-password", { method: "POST", body: JSON.stringify({ token: new URLSearchParams(location.search).get("reset"), password }) }); history.replaceState({}, "", "profile.html"); document.getElementById("resetPasswordForm").hidden = true; document.getElementById("authTabs").hidden = false; this.switchTab("login"); this.showFeedback(data.message); }
+        catch (error) { this.showFeedback(error.message, true); }
+        finally { this.setBusy(event.currentTarget, false); }
+    }
+
+    async resendVerification() {
+        const button = document.getElementById("resendVerificationBtn");
+        try { const data = await this.api("resend-verification", { method: "POST", body: JSON.stringify({ email: button.dataset.email }) }); button.hidden = true; this.showFeedback(data.message); }
+        catch (error) { this.showFeedback(error.message, true); }
+    }
+
+    async handlePasswordChange(event) {
+        event.preventDefault(); const data = new FormData(event.currentTarget); this.setBusy(event.currentTarget, true);
+        try { const result = await this.api("change-password", { method: "POST", body: JSON.stringify({ currentPassword: data.get("currentPassword"), newPassword: data.get("newPassword") }) }); event.currentTarget.reset(); window.showToast?.(result.message); }
+        catch (error) { window.showToast?.(error.message); }
+        finally { this.setBusy(event.currentTarget, false); }
+    }
+
+    async handleAccountDelete() {
+        if (!confirm("Hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.")) return;
+        const password = prompt("Onaylamak için şifreni gir:"); if (!password) return;
+        const accountId = this.session?.accountId;
+        try {
+            await this.api("account", { method: "DELETE", body: JSON.stringify({ password }) });
+            if (accountId) { localStorage.removeItem(`${this.LIBRARY_KEY}:${accountId}`); localStorage.removeItem(`seyirAtlasiSeriesLibrary:${accountId}`); }
+            this.accounts = []; this.writeStorage(this.ACCOUNTS_KEY, []); this.session = null; localStorage.removeItem(this.SESSION_KEY); sessionStorage.removeItem(this.SESSION_KEY); this.render(); this.switchTab("login"); this.showFeedback("Hesabın kalıcı olarak silindi.");
+        } catch (error) { window.showToast?.(error.message); }
     }
 
     getInitials(name) {
@@ -791,7 +832,7 @@ class LocalAccountManager {
         }
     }
 
-    handleProfileUpdate(event) {
+    async handleProfileUpdate(event) {
         event.preventDefault();
 
         const account =
@@ -813,20 +854,11 @@ class LocalAccountManager {
             return;
         }
 
-        account.name = name;
-        account.avatar =
-            String(
-                formData.get(
-                    "avatar"
-                ) || "images/avatar/1.svg"
-            );
-
-        if (
-            this.writeStorage(
-                this.ACCOUNTS_KEY,
-                this.accounts
-            )
-        ) {
+        const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
+        this.setBusy(event.currentTarget, true);
+        try {
+            const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar }) });
+            this.cacheAccount(user);
             this.toggleProfileEdit(false);
             this.render();
 
@@ -838,6 +870,10 @@ class LocalAccountManager {
                     "Profil bilgilerin güncellendi."
                 );
             }
+        } catch (error) {
+            this.showFeedback(error.message, true);
+        } finally {
+            this.setBusy(event.currentTarget, false);
         }
     }
 

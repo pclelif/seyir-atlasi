@@ -4,7 +4,12 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check movies.js && node --check series.js && node --check profile.js && node --check navigation.js"
+    "check": "node --check server.js && node --check movies.js && node --check series.js && node --check profile.js && node --check navigation.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "nodemailer": "^9.0.3",
+    "pg": "^8.16.3"
   },
   "engines": {
     "node": ">=20"

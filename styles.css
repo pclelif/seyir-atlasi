@@ -2938,6 +2938,32 @@ html:not([data-theme="light"]) .footer-brand img {
     line-height: 1.55;
 }
 
+.account-link-button {
+    align-self: center;
+    border: 0;
+    padding: 4px 8px;
+    color: var(--accent, #8ea5ff);
+    background: transparent;
+    font: inherit;
+    font-size: .88rem;
+    cursor: pointer;
+}
+
+.account-link-button:hover { text-decoration: underline; }
+.account-link-button[hidden] { display: none; }
+.account-form-heading h2 { margin: 0 0 6px; font-size: 1.25rem; }
+.account-form-heading p { margin: 0 0 14px; color: var(--text-muted, #aab2cf); font-size: .9rem; line-height: 1.5; }
+
+.profile-security { margin-top: 20px; padding: 24px; border: 1px solid rgba(142, 165, 255, .2); border-radius: 18px; background: rgba(10, 16, 42, .45); }
+.security-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+.security-form label { display: grid; gap: 7px; font-size: .88rem; }
+.security-form input { min-height: 44px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 10px; color: inherit; background: rgba(255,255,255,.06); }
+.security-form button, .profile-security-toggle { min-height: 44px; border: 1px solid rgba(142,165,255,.35); border-radius: 10px; padding: 9px 15px; color: inherit; background: rgba(142,165,255,.12); cursor: pointer; }
+.danger-zone { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,100,110,.2); }
+.danger-zone p { margin: 4px 0 0; color: var(--text-muted, #aab2cf); font-size: .86rem; }
+.danger-zone button { border: 1px solid rgba(255,100,110,.5); border-radius: 10px; padding: 10px 14px; color: #ff8f98; background: rgba(255,100,110,.08); cursor: pointer; }
+@media (max-width: 760px) { .security-form { grid-template-columns: 1fr; } .danger-zone { align-items: flex-start; flex-direction: column; } }
+
 .profile-card {
     text-align: center;
 }
@@ -6623,7 +6649,16 @@ select:focus-visible {
 }
 
 .recommend-dialog .pusula-mark img {
-    filter: invert(78%) sepia(66%) saturate(556%) hue-rotate(352deg) brightness(99%);
+    /* Koyu temada başlıklarla aynı yumuşak açık-altın tona yaklaşır. */
+    filter:
+        brightness(0)
+        saturate(100%)
+        invert(91%)
+        sepia(27%)
+        saturate(692%)
+        hue-rotate(346deg)
+        brightness(103%)
+        contrast(93%);
 }
 
 .recommend-dialog .recommend-close {

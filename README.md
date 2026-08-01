@@ -7,7 +7,7 @@ yapay zekâ destekli danışman ise kullanıcının o anki tercihlerini dinleyer
 film veya dizi önerileri üretir.
 
 Proje, bir arayüz çalışması olmasının yanında arama, filtreleme, kişisel
-kütüphane, yerel hesap ve yapay zekâ destekli öneri akışlarını tek bir
+kütüphane, PostgreSQL tabanlı hesap ve yapay zekâ destekli öneri akışlarını tek bir
 uygulamada bir araya getirir.
 
 ## Neler sunuyor?
@@ -42,8 +42,8 @@ uygulamada bir araya getirir.
 - [OMDb API](https://www.omdbapi.com/)
 - [Google Gemini API](https://ai.google.dev/gemini-api/docs)
 
-Harici bir npm paketi veya derleme adımı yoktur. `server.js`, statik dosyaları
-sunar ve Gemini anahtarını tarayıcıya açmadan `/api/pusula` isteğini işler.
+`server.js` statik dosyaları sunar; API anahtarlarını tarayıcıya açmadan veri
+geçitlerini, PostgreSQL hesaplarını ve e-posta işlemlerini yönetir.
 
 ## Kurulum ve çalıştırma
 
@@ -87,6 +87,13 @@ macOS'ta proje ile birlikte yerel Node.js çalışma zamanı bulunuyorsa
 | `GEMINI_MODEL` | Hayır | Varsayılan: `gemini-3.5-flash-lite` |
 | `HOST` | Hayır | Yerelde varsayılan: `127.0.0.1`; Render'da `0.0.0.0` kullanın |
 | `PORT` | Hayır | Varsayılan: `3000` |
+| `DATABASE_URL` | Hesaplar için evet | PostgreSQL bağlantı adresi |
+| `DATABASE_SSL` | Hayır | Uzak veritabanında `true`; yerelde `false` |
+| `APP_URL` | Üretimde evet | Uygulamanın `https://...` adresi |
+| `SMTP_HOST` / `SMTP_PORT` | E-posta için evet | SMTP sunucusu ve portu |
+| `SMTP_SECURE` | Hayır | Port 465 için `true`, STARTTLS/587 için `false` |
+| `SMTP_USER` / `SMTP_PASS` | Genellikle evet | SMTP kimlik bilgileri |
+| `MAIL_FROM` | E-posta için evet | Gönderen adı ve adresi |
 
 Üç API anahtarı da yalnızca `server.js` tarafından `.env` dosyasından veya
 sunucu ortamından okunur. Tarayıcı TMDB ve OMDb'ye doğrudan bağlanmaz;
@@ -112,18 +119,18 @@ JavaScript dosyalarında veya ağ yanıtlarında yayımlanmaz.
 └── start.command          # macOS için başlatıcı
 ```
 
-## Veriler nerede tutuluyor?
+## Hesap ve veriler
 
-Bu sürümde gerçek bir veritabanı veya uzak kullanıcı hesabı yoktur. Hesap,
-oturum, tema, favoriler, izleme listeleri ve kişisel puanlar tarayıcının
-`localStorage`/`sessionStorage` alanında tutulur.
+Kullanıcı hesapları, doğrulama kayıtları ve iptal edilebilir oturumlar
+PostgreSQL'de tutulur. Parolalar benzersiz salt ile `scrypt` kullanılarak
+özetlenir; tarayıcıya parola veya parola özeti yazılmaz. Oturum anahtarı
+`HttpOnly`, `SameSite=Lax` ve üretimde `Secure` çerezle taşınır.
 
 Bu nedenle:
 
-- Başka bir tarayıcıya veya cihaza geçince veriler otomatik taşınmaz.
-- Tarayıcı verileri silinirse koleksiyonlar da silinir.
-- Kayıt ve giriş sistemi yalnızca yerel demo deneyimidir; üretim tipi kimlik
-  doğrulama olarak değerlendirilmemelidir.
+- Hesap başka cihazlarda kullanılabilir.
+- Film ve dizi koleksiyonları şimdilik tarayıcıda hesap kimliğine bağlı tutulur;
+  cihazlar arası koleksiyon eşitlemesi sonraki veri taşıma adımıdır.
 
 Misafirken oluşturulan film koleksiyonu, kullanıcı yerel bir hesap açtığında
 ilgili hesaba aktarılır. Film ve dizi koleksiyonları ayrı saklanır; profil
@@ -170,8 +177,11 @@ Site** yerine **Web Service** olarak yayınlanmalıdır.
    - `HOST=0.0.0.0`
    - `TMDB_API_KEY`
    - `OMDB_API_KEY`
-   - `GEMINI_API_KEY`
-   - İsteğe bağlı olarak `GEMINI_MODEL`
+    - `GEMINI_API_KEY`
+    - İsteğe bağlı olarak `GEMINI_MODEL`
+    - `DATABASE_URL`, `DATABASE_SSL=true`
+    - `APP_URL=https://...`
+    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
 
 Render `PORT` değişkenini otomatik sağladığı için ayrıca tanımlamayın. Gerçek
 API anahtarlarını `.env` dosyasıyla GitHub'a yüklemeyin; yalnızca Render'ın
@@ -187,13 +197,10 @@ ortam değişkenleri alanında saklayın.
 
 ## Bilinen sınırlar
 
-- Kullanıcı verileri yalnızca tarayıcıda saklanır.
+- Film ve dizi koleksiyonları henüz cihazlar arasında eşitlenmez.
 - TMDB ve OMDb erişimi internet bağlantısına ve ilgili servislerin kotalarına
   bağlıdır.
-- Yerel hesap sistemi parola sıfırlama, e-posta doğrulama veya cihazlar arası
-  eşitleme sunmaz.
-- `server.js` hafif bir geliştirme sunucusudur; üretim dağıtımı için ek güvenlik,
-  kalıcı depolama ve gerçek kimlik doğrulama gerekir.
+- SMTP yapılandırılmazsa üretimde doğrulama ve şifre yenileme e-postaları gönderilemez.
 
 ## Veri ve marka notu
 
