@@ -6242,6 +6242,27 @@ select:focus-visible {
     margin: 0;
 }
 
+.pusula-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 3px;
+    padding: 4px 9px;
+    border: 1px solid var(--pusula-gold-border, var(--border-strong));
+    border-radius: 999px;
+    color: var(--pusula-gold-light, var(--text-soft));
+    background: var(--pusula-gold-soft, var(--primary-soft));
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
+.pusula-ai-badge span {
+    font-size: 0.72rem;
+}
+
 .pusula-heading p {
     margin: 0;
     color: var(--text-soft);
@@ -9924,10 +9945,16 @@ html:not([data-theme="light"]) .side-menu-brand img {
 
     .recommend-dialog .pusula-title-row {
         margin-top: 9px;
+        flex-wrap: wrap;
     }
 
     .recommend-dialog .pusula-heading h2 {
         font-size: 1.35rem;
+    }
+
+    .recommend-dialog .pusula-ai-badge {
+        padding: 4px 8px;
+        font-size: 0.6rem;
     }
 
     .recommend-dialog .pusula-heading p {
