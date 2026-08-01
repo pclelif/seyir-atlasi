@@ -122,6 +122,63 @@ function emailConfigured() {
     return Boolean(process.env.MAIL_FROM && (process.env.BREVO_API_KEY || mailer));
 }
 
+function escapeEmailHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
+
+function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, buttonLabel, link, expiry, securityNote }) {
+    const safeBaseUrl = escapeEmailHtml(baseUrl);
+    const safeLink = escapeEmailHtml(link);
+    return `<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEmailHtml(title)}</title></head>
+<body style="margin:0;padding:0;background:#080d23;color:#f7f8ff;font-family:Arial,'Helvetica Neue',sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeEmailHtml(preview)}</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#080d23;background-image:radial-gradient(circle at 18% 12%,rgba(143,175,255,.2),transparent 28%),radial-gradient(circle at 82% 20%,rgba(78,203,190,.12),transparent 24%);">
+<tr><td align="center" style="padding:42px 16px;">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;">
+<tr><td style="padding:0 8px 22px;text-align:center;">
+<a href="${safeBaseUrl}" style="display:inline-block;color:#fff;text-decoration:none;font-size:21px;font-weight:800;letter-spacing:-.3px;"><img src="${safeBaseUrl}/images/logo.svg" width="42" height="42" alt="" style="display:inline-block;width:42px;height:42px;margin-right:10px;vertical-align:middle;border:0;"><span style="vertical-align:middle;">SeyirAtlası</span></a>
+</td></tr>
+<tr><td style="overflow:hidden;border:1px solid rgba(206,224,228,.16);border-radius:24px;background:#15172e;background-image:radial-gradient(circle at 13% 20%,rgba(242,152,171,.3),transparent 30%),radial-gradient(circle at 83% 16%,rgba(78,203,190,.22),transparent 31%),radial-gradient(circle at 70% 108%,rgba(230,185,82,.2),transparent 35%),linear-gradient(128deg,#321c3d 0%,#172c3c 55%,#15172e 100%);box-shadow:0 24px 70px rgba(0,0,0,.35);">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+<tr><td style="height:7px;background:linear-gradient(90deg,#f298ab 0%,#728be4 36%,#4ecbbe 68%,#e6b952 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
+<tr><td style="padding:46px 46px 18px;">
+<div style="margin-bottom:20px;color:#eab6c8;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">${escapeEmailHtml(eyebrow)}</div>
+<h1 style="margin:0 0 18px;color:#fff;font-size:34px;line-height:1.15;letter-spacing:-1px;">${escapeEmailHtml(title)}</h1>
+<p style="margin:0 0 12px;color:#f3f5ff;font-size:17px;line-height:1.65;">${escapeEmailHtml(greeting)}</p>
+<p style="margin:0;color:rgba(226,232,240,.82);font-size:15px;line-height:1.75;">${escapeEmailHtml(message)}</p>
+</td></tr>
+<tr><td style="padding:12px 46px 34px;">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:12px;background:#8fafff;background-image:linear-gradient(135deg,#a9bdff,#7899f2);"><a href="${safeLink}" style="display:inline-block;padding:15px 24px;color:#101633;font-size:15px;font-weight:800;text-decoration:none;">${escapeEmailHtml(buttonLabel)} &nbsp;→</a></td></tr></table>
+<p style="margin:20px 0 0;color:rgba(226,232,240,.68);font-size:13px;line-height:1.6;">${escapeEmailHtml(expiry)}</p>
+</td></tr>
+<tr><td style="padding:24px 46px;border-top:1px solid rgba(255,255,255,.09);background:rgba(5,10,28,.2);">
+<p style="margin:0 0 10px;color:rgba(226,232,240,.74);font-size:12px;line-height:1.6;">${escapeEmailHtml(securityNote)}</p>
+<p style="margin:0;color:rgba(226,232,240,.52);font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#a9bdff;text-decoration:none;">${safeLink}</a></p>
+</td></tr></table>
+</td></tr>
+<tr><td style="padding:22px 20px 0;text-align:center;color:#7f89aa;font-size:11px;line-height:1.6;">✦ &nbsp; Yeni hikâyelerle rotanı çiz. &nbsp; ✦<br>Bu e-posta SeyirAtlası hesap işlemin için gönderildi.</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function verificationEmail(request, user, link) {
+    const greeting = `Merhaba ${user.name},`;
+    return {
+        subject: "SeyirAtlası rotanı doğrula",
+        text: `${greeting}\n\nSeyirAtlası hesabını tamamlamak için e-posta adresini doğrula:\n${link}\n\nBu bağlantı 24 saat geçerlidir. Bu hesabı sen oluşturmadıysan e-postayı yok sayabilirsin.`,
+        html: brandedEmail({ baseUrl: appUrl(request), preview: "SeyirAtlası hesabını doğrula ve rotanı çizmeye başla.", eyebrow: "Rotanı başlat", title: "SeyirAtlası’na hoş geldin", greeting, message: "İzlediklerini biriktirmek, listelerini korumak ve kendi seyir rotanı oluşturmak için son bir adım kaldı.", buttonLabel: "E-posta adresimi doğrula", link, expiry: "Bu doğrulama bağlantısı 24 saat boyunca geçerlidir.", securityNote: "Bu hesabı sen oluşturmadıysan herhangi bir işlem yapmana gerek yok; bu e-postayı güvenle yok sayabilirsin." })
+    };
+}
+
+function passwordResetEmail(request, user, link) {
+    const greeting = `Merhaba ${user.name},`;
+    return {
+        subject: "SeyirAtlası şifreni yenile",
+        text: `${greeting}\n\nYeni şifreni belirlemek için bağlantıyı aç:\n${link}\n\nBu bağlantı 1 saat geçerlidir. Bu isteği sen yapmadıysan e-postayı yok sayabilirsin.`,
+        html: brandedEmail({ baseUrl: appUrl(request), preview: "SeyirAtlası hesabın için yeni bir şifre belirle.", eyebrow: "Hesap güvenliği", title: "Şifreni yenile", greeting, message: "Hesabına yeniden ulaşabilmen için güvenli bir şifre yenileme bağlantısı hazırladık.", buttonLabel: "Yeni şifre belirle", link, expiry: "Bu güvenli bağlantı 1 saat boyunca geçerlidir ve yalnızca bir kez kullanılabilir.", securityNote: "Bu isteği sen yapmadıysan şifren değişmez; bu e-postayı güvenle yok sayabilirsin." })
+    };
+}
+
 async function createPurposeToken(userId, purpose) {
     const token = randomBytes(32).toString("base64url");
     await pool.query("DELETE FROM auth_tokens WHERE user_id = $1 AND purpose = $2", [userId, purpose]);
@@ -312,8 +369,8 @@ export async function handleAuth(request, response, url) {
             const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
             if (existing.rowCount) return reply(response, 409, { error: "Bu e-posta adresi zaten kayıtlı." }), true;
             const result = await pool.query("INSERT INTO users(name, email, password_hash) VALUES($1,$2,$3) RETURNING *", [name, email, await passwordHash(password)]);
-            const token = await createPurposeToken(result.rows[0].id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`;
-            await sendMail(email, "SeyirAtlası e-posta doğrulama", `E-posta adresini doğrula: ${link}`, `<h2>SeyirAtlası'na hoş geldin</h2><p>Hesabını etkinleştirmek için aşağıdaki bağlantıyı kullan:</p><p><a href="${link}">E-posta adresimi doğrula</a></p><p>Bağlantı 24 saat geçerlidir.</p>`);
+            const token = await createPurposeToken(result.rows[0].id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`; const emailContent = verificationEmail(request, result.rows[0], link);
+            await sendMail(email, emailContent.subject, emailContent.text, emailContent.html);
             return reply(response, 201, { message: "Hesabın oluşturuldu. E-postana gönderdiğimiz bağlantıyla hesabını doğrula.", emailSent: true }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/login") {
@@ -375,7 +432,7 @@ export async function handleAuth(request, response, url) {
         if (request.method === "POST" && url.pathname === "/api/auth/resend-verification") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email=$1", [normalizeEmail(data.email)]); const user = result.rows[0];
-            if (user && !user.email_verified_at) { const token = await createPurposeToken(user.id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`; await sendMail(user.email, "SeyirAtlası e-posta doğrulama", `E-posta adresini doğrula: ${link}`, `<p><a href="${link}">E-posta adresimi doğrula</a></p>`); }
+            if (user && !user.email_verified_at) { const token = await createPurposeToken(user.id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`; const emailContent = verificationEmail(request, user, link); await sendMail(user.email, emailContent.subject, emailContent.text, emailContent.html); }
             return reply(response, 200, { message: "Adres kayıtlıysa doğrulama e-postası gönderildi." }), true;
         }
         if (request.method === "GET" && url.pathname === "/api/auth/verify") {
@@ -386,7 +443,7 @@ export async function handleAuth(request, response, url) {
         if (request.method === "POST" && url.pathname === "/api/auth/forgot-password") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email=$1", [normalizeEmail(data.email)]); const user = result.rows[0];
-            if (user) { const token = await createPurposeToken(user.id, "reset"); const link = `${appUrl(request)}/profile.html?reset=${encodeURIComponent(token)}`; await sendMail(user.email, "SeyirAtlası şifre yenileme", `Şifreni yenile: ${link}`, `<p><a href="${link}">Yeni şifre belirle</a></p><p>Bağlantı 1 saat geçerlidir.</p>`); }
+            if (user) { const token = await createPurposeToken(user.id, "reset"); const link = `${appUrl(request)}/profile.html?reset=${encodeURIComponent(token)}`; const emailContent = passwordResetEmail(request, user, link); await sendMail(user.email, emailContent.subject, emailContent.text, emailContent.html); }
             return reply(response, 200, { message: "Adres kayıtlıysa şifre yenileme e-postası gönderildi." }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/reset-password") {
