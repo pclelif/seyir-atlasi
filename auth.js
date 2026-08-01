@@ -251,7 +251,7 @@ export async function handleLibrary(request, response, url) {
             const data = await body(request, 2_500_000); const mediaType = String(data.type || ""); const title = String(data.title || "").trim().slice(0,80); const description = String(data.description || "").trim().slice(0,240); const items = Array.isArray(data.items) ? data.items.slice(0,500) : [];
             if (!['movie','tv'].includes(mediaType) || !title) return reply(response,400,{error:"Liste bilgileri geçersiz."}),true;
             const shareId = randomBytes(9).toString("base64url");
-            await pool.query("INSERT INTO shared_lists(share_id,user_id,media_type,title,description,items,ratings) VALUES($1,$2,$3,$4,$5,$6,$7)", [shareId,user.id,mediaType,title,description,items,cleanLibrary({ratings:data.ratings},'movie').ratings]);
+            await pool.query("INSERT INTO shared_lists(share_id,user_id,media_type,title,description,items,ratings) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb)", [shareId,user.id,mediaType,title,description,JSON.stringify(items),JSON.stringify(cleanLibrary({ratings:data.ratings},'movie').ratings)]);
             return reply(response,201,{ shareId, url:`${appUrl(request)}/shared-list.html?id=${shareId}` }),true;
         }
         if (url.pathname === "/api/lists/shares" && request.method === "GET") {
