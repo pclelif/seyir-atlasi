@@ -2975,7 +2975,9 @@ html:not([data-theme="light"]) .footer-brand img {
 .shared-list-hero small { display: block; margin-top: 12px; color: var(--primary-light); font-weight: 800; }
 .shared-list-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .shared-list-actions button, .shared-home-link { border: 1px solid var(--border-strong); border-radius: 11px; padding: 11px 15px; color: var(--text); background: var(--primary-soft); font: inherit; font-weight: 750; text-decoration: none; cursor: pointer; }
-.shared-list-card { text-decoration: none; }
+.shared-list-card,
+.shared-list-card:visited { color: var(--text); text-decoration: none; }
+.shared-list-card .movie-info h3 { color: var(--text); }
 #sharedItems { margin-top: clamp(30px, 5vw, 52px); }
 .profile-shares { margin-top: 46px; }
 .profile-share-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
@@ -2983,7 +2985,7 @@ html:not([data-theme="light"]) .footer-brand img {
 .profile-share-row small { margin-top: 4px; color: var(--text-muted); }
 .profile-share-row > div:last-child { display: flex; gap: 9px; }
 .profile-share-row a, .profile-share-row button { border: 1px solid var(--border-strong); border-radius: 9px; padding: 8px 11px; color: var(--text); background: transparent; font: inherit; text-decoration: none; cursor: pointer; }
-@media (max-width: 700px) { .shared-list-hero { align-items: flex-start; flex-direction: column; } .shared-list-navbar .navbar-inner { padding-right: calc(18px + env(safe-area-inset-right, 0px)); padding-left: calc(18px + env(safe-area-inset-left, 0px)); } .shared-list-navbar .side-menu-brand span { display: none; } }
+@media (max-width: 700px) { .shared-list-hero { align-items: flex-start; flex-direction: column; } .shared-list-navbar .navbar-inner { padding-right: calc(30px + env(safe-area-inset-right, 0px)); padding-left: calc(18px + env(safe-area-inset-left, 0px)); } .shared-list-navbar .side-menu-brand span { display: none; } }
 @media (max-width: 620px) { .profile-share-row { align-items: flex-start; flex-direction: column; } }
 
 .profile-card {
