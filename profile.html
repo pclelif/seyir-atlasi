@@ -89,7 +89,7 @@
                     </span>
                     <span>Beni hatırla</span>
                 </label>
-                <button type="submit" class="account-submit">Giriş Yap</button>
+                <button type="submit" class="account-submit" data-busy-text="Giriş yapılıyor…">Giriş Yap</button>
                 <button type="button" class="account-link-button" id="forgotPasswordBtn">Şifremi unuttum</button>
                 <button type="button" class="account-link-button" id="resendVerificationBtn" hidden>Doğrulama e-postasını yeniden gönder</button>
             </form>
@@ -154,20 +154,20 @@
                         </button>
                     </span>
                 </label>
-                <button type="submit" class="account-submit">Profil Oluştur</button>
+                <button type="submit" class="account-submit" data-busy-text="Hesap oluşturuluyor…">Profil Oluştur</button>
             </form>
 
             <form class="account-form" id="recoveryForm" hidden>
                 <div class="account-form-heading"><h2>Şifreni yenile</h2><p>Kayıtlı adresine güvenli bir yenileme bağlantısı göndereceğiz.</p></div>
                 <label><span>E-posta</span><input type="email" name="email" autocomplete="email" required></label>
-                <button type="submit" class="account-submit">Yenileme Bağlantısı Gönder</button>
+                <button type="submit" class="account-submit" data-busy-text="Bağlantı gönderiliyor…">Yenileme Bağlantısı Gönder</button>
                 <button type="button" class="account-link-button" id="recoveryCancel">Giriş ekranına dön</button>
             </form>
 
             <form class="account-form" id="resetPasswordForm" hidden>
                 <div class="account-form-heading"><h2>Yeni şifre belirle</h2><p>En az 10 karakter, büyük/küçük harf ve rakam kullan.</p></div>
                 <label><span>Yeni şifre</span><span class="password-input-wrap"><input type="password" name="password" autocomplete="new-password" minlength="10" required><button type="button" class="password-toggle" data-password-toggle aria-label="Şifreyi göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>
-                <button type="submit" class="account-submit">Şifremi Güvenle Yenile</button>
+                <button type="submit" class="account-submit" data-busy-text="Şifre yenileniyor…">Şifremi Güvenle Yenile</button>
             </form>
 
             <p class="account-feedback" id="accountFeedback" role="status" aria-live="polite"></p>
@@ -309,7 +309,7 @@
                     <form id="changePasswordForm" class="security-form">
                         <label><span>Mevcut şifre</span><input type="password" name="currentPassword" autocomplete="current-password" required></label>
                         <label><span>Yeni şifre</span><input type="password" name="newPassword" autocomplete="new-password" minlength="10" required></label>
-                        <button type="submit">Şifreyi Güncelle</button>
+                        <button type="submit" data-busy-text="Şifre güncelleniyor…">Şifreyi Güncelle</button>
                     </form>
                     <div class="danger-zone"><div><strong>Hesabı sil</strong><p>Profil ve oturum verilerin kalıcı olarak silinir.</p></div><button type="button" id="deleteAccountBtn">Hesabımı Sil</button></div>
                 </section>

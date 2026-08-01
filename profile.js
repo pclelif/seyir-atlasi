@@ -476,7 +476,9 @@ class LocalAccountManager {
         const submit = form.querySelector('[type="submit"]');
         if (submit) {
             if (!submit.dataset.defaultText) submit.dataset.defaultText = submit.textContent;
-            submit.textContent = busy ? "İşleniyor…" : submit.dataset.defaultText;
+            submit.textContent = busy
+                ? submit.dataset.busyText || "Lütfen bekle…"
+                : submit.dataset.defaultText;
         }
     }
 
