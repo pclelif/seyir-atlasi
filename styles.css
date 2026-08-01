@@ -6251,7 +6251,7 @@ select:focus-visible {
     padding: 4px 9px;
     border: 1px solid var(--pusula-gold-border, var(--border-strong));
     border-radius: 999px;
-    color: var(--pusula-gold-light, var(--text-soft));
+    color: var(--text-soft);
     background: var(--pusula-gold-soft, var(--primary-soft));
     font-size: 0.65rem;
     font-weight: 700;
