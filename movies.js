@@ -1125,7 +1125,9 @@ class MovieExplorer {
                 genres.reduce(
                     (genreMap, genre) => {
                         genreMap[genre.id] =
-                            genre.name;
+                            genre.name === "Bilim-Kurgu"
+                                ? "Bilim Kurgu"
+                                : genre.name;
 
                         return genreMap;
                     },
@@ -1146,7 +1148,7 @@ class MovieExplorer {
 
                 option.value = genre.id;
                 option.textContent =
-                    genre.name;
+                    this.genres[genre.id];
 
                 genreSelect.appendChild(
                     option

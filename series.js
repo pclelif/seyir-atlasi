@@ -305,8 +305,11 @@ class SeriesExplorer {
             const data = await this.fetchData("/genre/tv/list");
             const select = document.getElementById("seriesGenreFilter");
             data.genres?.forEach((genre) => {
-                this.genres[genre.id] = genre.name;
-                select?.insertAdjacentHTML("beforeend", `<option value="${genre.id}">${this.escape(genre.name)}</option>`);
+                const displayName = genre.name === "Bilim Kurgu & Fantazi"
+                    ? "Bilim Kurgu"
+                    : genre.name;
+                this.genres[genre.id] = displayName;
+                select?.insertAdjacentHTML("beforeend", `<option value="${genre.id}">${this.escape(displayName)}</option>`);
             });
         } catch (error) {
             console.error("Dizi türleri yüklenemedi:", error);
