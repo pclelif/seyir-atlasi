@@ -199,8 +199,8 @@
                 <fieldset>
                     <legend>Avatarını seç</legend>
                     <div class="custom-avatar-upload">
-                        <img id="customAvatarPreview" alt="Seçtiğin profil fotoğrafı önizlemesi" hidden>
-                        <div><strong>Kendi fotoğrafını kullan</strong><small>JPG, PNG veya WebP · kare olarak düzenlenir</small><label for="customAvatarFile">Dosyadan Fotoğraf Seç</label><input type="file" id="customAvatarFile" accept="image/jpeg,image/png,image/webp" hidden><input type="radio" name="avatar" value="custom" id="customAvatarChoice" hidden></div>
+                        <div class="custom-avatar-preview" id="customAvatarPreviewBox"><img id="customAvatarPreview" alt="" hidden><span aria-hidden="true">+</span></div>
+                        <div><strong>Kendi fotoğrafını kullan</strong><small>Kare olarak düzenlenir</small><label for="customAvatarFile">Dosyadan Fotoğraf Seç</label><input type="file" id="customAvatarFile" accept="image/jpeg,image/png,image/webp" hidden><input type="radio" name="avatar" value="custom" id="customAvatarChoice" hidden></div>
                     </div>
                     <div class="avatar-primary-options">
                         <label>
@@ -246,7 +246,7 @@
                 </fieldset>
                 <fieldset class="profile-taste-fields">
                     <legend>Seyir zevklerin</legend>
-                    <p class="avatar-group-label">En sevdiğin türler <small>· En fazla 3 seçim</small></p>
+                    <p class="avatar-group-label">En sevdiğin türler <small>· 3 seçim</small></p>
                     <div class="profile-genre-options">
                         <label><input type="checkbox" name="genres" value="Aksiyon"><span>Aksiyon</span></label><label><input type="checkbox" name="genres" value="Animasyon"><span>Animasyon</span></label><label><input type="checkbox" name="genres" value="Belgesel"><span>Belgesel</span></label><label><input type="checkbox" name="genres" value="Bilim Kurgu"><span>Bilim Kurgu</span></label><label><input type="checkbox" name="genres" value="Dram"><span>Dram</span></label><label><input type="checkbox" name="genres" value="Fantastik"><span>Fantastik</span></label><label><input type="checkbox" name="genres" value="Gerilim"><span>Gerilim</span></label><label><input type="checkbox" name="genres" value="Komedi"><span>Komedi</span></label><label><input type="checkbox" name="genres" value="Korku"><span>Korku</span></label><label><input type="checkbox" name="genres" value="Macera"><span>Macera</span></label><label><input type="checkbox" name="genres" value="Romantik"><span>Romantik</span></label><label><input type="checkbox" name="genres" value="Savaş"><span>Savaş</span></label><label><input type="checkbox" name="genres" value="Suç"><span>Suç</span></label><label><input type="checkbox" name="genres" value="Tarih"><span>Tarih</span></label><label><input type="checkbox" name="genres" value="Vahşi Batı"><span>Vahşi Batı</span></label>
                     </div>

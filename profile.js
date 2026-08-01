@@ -914,7 +914,7 @@ class LocalAccountManager {
 
             const preferences=account.preferences||{};
             this.customAvatarData=preferences.customAvatar||"";
-            const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=!this.customAvatarData;
+            const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=!this.customAvatarData; document.getElementById("customAvatarPreviewBox")?.classList.toggle("has-image",Boolean(this.customAvatarData));
             form.querySelectorAll('[name="genres"]').forEach((input)=>{input.checked=(preferences.genres||[]).includes(input.value);});
             form.elements.favoriteMovie.value=preferences.favoriteMovie||"";
             form.elements.favoriteSeries.value=preferences.favoriteSeries||"";
@@ -931,7 +931,7 @@ class LocalAccountManager {
         if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>8_000_000){window.showToast?.("JPG, PNG veya WebP biçiminde en fazla 8 MB fotoğraf seç.");event.target.value="";return;}
         try {
             const bitmap=await createImageBitmap(file); const size=Math.min(bitmap.width,bitmap.height); const canvas=document.createElement("canvas"); canvas.width=256; canvas.height=256; const context=canvas.getContext("2d"); context.drawImage(bitmap,(bitmap.width-size)/2,(bitmap.height-size)/2,size,size,0,0,256,256); bitmap.close?.();
-            this.customAvatarData=canvas.toDataURL("image/webp",.82); const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=false; document.getElementById("customAvatarChoice").checked=true; window.showToast?.("Fotoğrafın hazır; kaydetmeyi unutma.");
+            this.customAvatarData=canvas.toDataURL("image/webp",.82); const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=false; document.getElementById("customAvatarPreviewBox")?.classList.add("has-image"); document.getElementById("customAvatarChoice").checked=true; window.showToast?.("Fotoğrafın hazır; kaydetmeyi unutma.");
         } catch { window.showToast?.("Fotoğraf işlenemedi."); }
     }
 
