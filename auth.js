@@ -8,6 +8,12 @@ const { Pool } = pg;
 const SESSION_COOKIE = "seyir_atlasi_session";
 const TOKEN_TTL = { verify: 24 * 60 * 60 * 1000, reset: 60 * 60 * 1000, session: 30 * 24 * 60 * 60 * 1000 };
 const allowedAvatar = /^images\/avatar\/(?:[1-9]|1\d|2[01])\.svg$/;
+const analyticsDateFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Istanbul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+});
 
 let pool;
 let mailer;
@@ -46,6 +52,10 @@ function publicUser(row) {
 
 function tokenHash(token) {
     return createHash("sha256").update(token).digest("hex");
+}
+
+function analyticsDate(date = new Date()) {
+    return analyticsDateFormatter.format(date);
 }
 
 async function passwordHash(password) {
@@ -188,7 +198,8 @@ export const authTestHelpers = Object.freeze({
     brandedEmail,
     verificationEmail,
     passwordResetEmail,
-    tokenHash
+    tokenHash,
+    analyticsDate
 });
 
 async function createPurposeToken(userId, purpose) {
@@ -275,7 +286,7 @@ export async function initializeAuth() {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_version VARCHAR(12);
         CREATE UNIQUE INDEX IF NOT EXISTS users_profile_slug_idx ON users(profile_slug) WHERE profile_slug IS NOT NULL;
     `);
-    await pool.query("DELETE FROM analytics_daily_visitors WHERE visit_date < CURRENT_DATE - INTERVAL '395 days'");
+    await pool.query("DELETE FROM analytics_daily_visitors WHERE visit_date < (NOW() AT TIME ZONE 'Europe/Istanbul')::date - INTERVAL '395 days'");
     if (process.env.SMTP_HOST) {
         mailer = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
@@ -302,7 +313,7 @@ export async function handleAnalytics(request, response, url) {
 
     try {
         if (request.method === "POST" && url.pathname === "/api/analytics/view") {
-            const date = new Date().toISOString().slice(0, 10);
+            const date = analyticsDate();
             const visitorHash = analyticsVisitorHash(request, date);
             await pool.query(
                 `INSERT INTO analytics_daily_visitors(visit_date, visitor_hash, page_views)
@@ -328,7 +339,7 @@ export async function handleAnalytics(request, response, url) {
                        COUNT(*)::INTEGER AS visitors,
                        COALESCE(SUM(page_views), 0)::INTEGER AS page_views
                 FROM analytics_daily_visitors
-                WHERE visit_date >= CURRENT_DATE - INTERVAL '30 days'
+                WHERE visit_date >= (NOW() AT TIME ZONE 'Europe/Istanbul')::date - INTERVAL '30 days'
                 GROUP BY visit_date
                 ORDER BY visit_date DESC
             `);

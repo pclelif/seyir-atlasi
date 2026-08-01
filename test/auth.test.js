@@ -8,7 +8,8 @@ const {
     escapeEmailHtml,
     verificationEmail,
     passwordResetEmail,
-    tokenHash
+    tokenHash,
+    analyticsDate
 } = authTestHelpers;
 
 const request = {
@@ -17,6 +18,11 @@ const request = {
         "x-forwarded-proto": "https"
     }
 };
+
+test("analytics gününü İstanbul saatine göre hesaplar", () => {
+    assert.equal(analyticsDate(new Date("2026-08-01T20:59:59Z")), "2026-08-01");
+    assert.equal(analyticsDate(new Date("2026-08-01T21:00:00Z")), "2026-08-02");
+});
 
 test("e-posta adresini giriş için güvenli biçimde normalleştirir", () => {
     assert.equal(normalizeEmail("  Elif@Example.COM  "), "elif@example.com");
