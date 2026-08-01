@@ -6243,10 +6243,11 @@ select:focus-visible {
 }
 
 .pusula-ai-badge {
-    display: inline-flex;
+    display: flex;
+    width: fit-content;
     align-items: center;
     gap: 5px;
-    margin-left: 3px;
+    margin: 7px 0 8px 43px;
     padding: 4px 9px;
     border: 1px solid var(--pusula-gold-border, var(--border-strong));
     border-radius: 999px;
@@ -9953,6 +9954,7 @@ html:not([data-theme="light"]) .side-menu-brand img {
     }
 
     .recommend-dialog .pusula-ai-badge {
+        margin-left: 43px;
         padding: 4px 8px;
         font-size: 0.6rem;
     }
