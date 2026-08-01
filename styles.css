@@ -3976,6 +3976,7 @@ html:not([data-theme="light"]) .footer-brand img {
 
 .footer-identity .footer-tagline {
     margin: 0 0 0 12px;
+    font-size: 0.82rem;
 }
 
 .footer-inner > .footer-contact {
