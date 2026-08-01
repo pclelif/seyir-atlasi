@@ -513,9 +513,10 @@ class LocalAccountManager {
 
     async handleRegister(event) {
         event.preventDefault();
+        const form = event.currentTarget;
 
         const formData =
-            new FormData(event.currentTarget);
+            new FormData(form);
 
         const name =
             String(formData.get("name"))
@@ -540,13 +541,13 @@ class LocalAccountManager {
 
         if (name.length < 2) {
             this.showFeedback("Ad soyad alanına en az 2 karakter yazmalısın.", true);
-            event.currentTarget.elements.name.focus();
+            form.elements.name.focus();
             return;
         }
 
         if (!/^\S+@\S+\.\S+$/.test(email)) {
             this.showFeedback("Geçerli bir e-posta adresi yazmalısın.", true);
-            event.currentTarget.elements.email.focus();
+            form.elements.email.focus();
             return;
         }
 
@@ -588,10 +589,10 @@ class LocalAccountManager {
         }
 
         this.showFeedback("Hesabın oluşturuluyor, lütfen bekle…");
-        this.setBusy(event.currentTarget, true);
+        this.setBusy(form, true);
         try {
             const result = await this.api("register", { method: "POST", body: JSON.stringify({ name, email, password }) });
-            event.currentTarget.reset();
+            form.reset();
             this.validatePasswordConfirmation();
             this.updatePasswordSecurity("");
             this.switchTab("login");
@@ -600,15 +601,16 @@ class LocalAccountManager {
         } catch (error) {
             this.showFeedback(error.message, true);
         } finally {
-            this.setBusy(event.currentTarget, false);
+            this.setBusy(form, false);
         }
     }
 
     async handleLogin(event) {
         event.preventDefault();
+        const form = event.currentTarget;
 
         const formData =
-            new FormData(event.currentTarget);
+            new FormData(form);
 
         const email =
             this.normalizeEmail(
@@ -624,19 +626,19 @@ class LocalAccountManager {
             formData.get("remember") ===
             "on";
 
-        this.setBusy(event.currentTarget, true);
+        this.setBusy(form, true);
         try {
             const { user } = await this.api("login", { method: "POST", body: JSON.stringify({ email, password, remember: shouldRemember }) });
             this.cacheAccount(user);
             this.startSession(user, shouldRemember);
-            event.currentTarget.reset();
+            form.reset();
             this.render();
         } catch (error) {
             this.showFeedback(error.message, true);
             const resend = document.getElementById("resendVerificationBtn");
             if (resend) { resend.hidden = error.code !== "EMAIL_NOT_VERIFIED"; resend.dataset.email = email; }
         } finally {
-            this.setBusy(event.currentTarget, false);
+            this.setBusy(form, false);
         }
     }
 
@@ -742,18 +744,18 @@ class LocalAccountManager {
     }
 
     async handleRecovery(event) {
-        event.preventDefault(); this.setBusy(event.currentTarget, true);
-        try { const data = await this.api("forgot-password", { method: "POST", body: JSON.stringify({ email: new FormData(event.currentTarget).get("email") }) }); this.showFeedback(data.message); }
+        event.preventDefault(); const form = event.currentTarget; this.setBusy(form, true);
+        try { const data = await this.api("forgot-password", { method: "POST", body: JSON.stringify({ email: new FormData(form).get("email") }) }); this.showFeedback(data.message); }
         catch (error) { this.showFeedback(error.message, true); }
-        finally { this.setBusy(event.currentTarget, false); }
+        finally { this.setBusy(form, false); }
     }
 
     async handlePasswordReset(event) {
-        event.preventDefault(); const password = String(new FormData(event.currentTarget).get("password"));
-        this.setBusy(event.currentTarget, true);
+        event.preventDefault(); const form = event.currentTarget; const password = String(new FormData(form).get("password"));
+        this.setBusy(form, true);
         try { const data = await this.api("reset-password", { method: "POST", body: JSON.stringify({ token: new URLSearchParams(location.search).get("reset"), password }) }); history.replaceState({}, "", "profile.html"); document.getElementById("resetPasswordForm").hidden = true; document.getElementById("authTabs").hidden = false; this.switchTab("login"); this.showFeedback(data.message); }
         catch (error) { this.showFeedback(error.message, true); }
-        finally { this.setBusy(event.currentTarget, false); }
+        finally { this.setBusy(form, false); }
     }
 
     async resendVerification() {
@@ -763,10 +765,10 @@ class LocalAccountManager {
     }
 
     async handlePasswordChange(event) {
-        event.preventDefault(); const data = new FormData(event.currentTarget); this.setBusy(event.currentTarget, true);
-        try { const result = await this.api("change-password", { method: "POST", body: JSON.stringify({ currentPassword: data.get("currentPassword"), newPassword: data.get("newPassword") }) }); event.currentTarget.reset(); window.showToast?.(result.message); }
+        event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); this.setBusy(form, true);
+        try { const result = await this.api("change-password", { method: "POST", body: JSON.stringify({ currentPassword: data.get("currentPassword"), newPassword: data.get("newPassword") }) }); form.reset(); window.showToast?.(result.message); }
         catch (error) { window.showToast?.(error.message); }
-        finally { this.setBusy(event.currentTarget, false); }
+        finally { this.setBusy(form, false); }
     }
 
     async handleAccountDelete() {
@@ -851,6 +853,7 @@ class LocalAccountManager {
 
     async handleProfileUpdate(event) {
         event.preventDefault();
+        const form = event.currentTarget;
 
         const account =
             this.getCurrentAccount();
@@ -860,7 +863,7 @@ class LocalAccountManager {
         }
 
         const formData =
-            new FormData(event.currentTarget);
+            new FormData(form);
 
         const name =
             String(
@@ -872,7 +875,7 @@ class LocalAccountManager {
         }
 
         const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
-        this.setBusy(event.currentTarget, true);
+        this.setBusy(form, true);
         try {
             const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar }) });
             this.cacheAccount(user);
@@ -890,7 +893,7 @@ class LocalAccountManager {
         } catch (error) {
             this.showFeedback(error.message, true);
         } finally {
-            this.setBusy(event.currentTarget, false);
+            this.setBusy(form, false);
         }
     }
 
