@@ -4022,8 +4022,8 @@ html:not([data-theme="light"]) .footer-brand img {
 .footer-legal { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; }
 .footer-legal a { color:var(--text-muted); font-size:.78rem; text-decoration:none; }
 .footer-legal a:hover { color:var(--text); text-decoration:underline; }
-.register-disclosure { margin:2px 0 0; color:var(--text-muted); font-size:.78rem; line-height:1.55; }
-.register-disclosure a,.terms-option a { color:var(--primary); text-underline-offset:3px; }
+.register-disclosure { margin:2px 0 0; color:var(--text-muted); font-size:.8rem; line-height:1.55; }
+.register-disclosure a,.terms-option a { color:var(--primary); font-weight:700; text-underline-offset:3px; }
 .terms-option { display:flex!important; flex-direction:row!important; align-items:center!important; gap:10px!important; color:var(--text-muted); font-size:.8rem; line-height:1.45; }
 .terms-option input { flex:0 0 17px; width:17px!important; height:17px; margin:0; align-self:center; accent-color:var(--primary); }
 
