@@ -39,24 +39,24 @@
 }
 
 [data-theme="light"] {
-    --background: #dce7f4;
-    --background-dark: #dce7f4;
-    --background-light: #f8fbff;
+    --background: #e6f6ff;
+    --background-dark: #cfeeff;
+    --background-light: #f7fcff;
 
-    --card-background: rgba(255, 255, 255, 0.82);
-    --card-background-hover: rgba(255, 255, 255, 0.96);
+    --card-background: #ffffff;
+    --card-background-hover: #ffffff;
 
-    --primary: #405fb5;
-    --primary-light: #27458f;
-    --primary-soft: rgba(64, 95, 181, 0.12);
+    --primary: #b79a3b;
+    --primary-light: #8a7223;
+    --primary-soft: rgba(49, 143, 194, 0.12);
 
-    --silver: #18233f;
-    --text: #17213b;
-    --text-soft: #364461;
-    --text-muted: #62708d;
+    --silver: #102a43;
+    --text: #102a43;
+    --text-soft: #294861;
+    --text-muted: #526f84;
 
-    --border: rgba(46, 69, 126, 0.18);
-    --border-strong: rgba(46, 69, 126, 0.35);
+    --border: rgba(34, 112, 154, 0.18);
+    --border-strong: rgba(34, 112, 154, 0.34);
 
     --shadow-small:
         0 8px 24px rgba(39, 55, 92, 0.12);
@@ -10283,4 +10283,129 @@ html:not([data-theme="light"]) .side-menu-brand img {
     [data-theme="light"] .profile-dashboard {
         background-color: #eff9ff;
     }
+}
+
+/* ==================================================
+   AÇIK TEMA · GÖKYÜZÜ PALETİ (NİHAİ)
+   Altın yalnızca marka ve Pusula vurgularında korunur.
+================================================== */
+
+[data-theme="light"] {
+    --day-gold: #b79a3b;
+    --day-gold-light: #ead27b;
+    --day-blue-deep: #176b96;
+    --day-blue: #3194c7;
+    --day-blue-soft: #e6f6ff;
+    --background: #e6f6ff;
+    --background-dark: #cfeeff;
+    --background-light: #f7fcff;
+    --card-background: #ffffff;
+    --card-background-hover: #ffffff;
+    --primary: var(--day-gold);
+    --primary-light: #8a7223;
+    --primary-soft: rgba(49, 148, 199, 0.12);
+    --silver: #102a43;
+    --text: #102a43;
+    --text-soft: #294861;
+    --text-muted: #526f84;
+    --border: rgba(34, 112, 154, 0.18);
+    --border-strong: rgba(34, 112, 154, 0.34);
+    --shadow-small: 0 10px 28px rgba(28, 92, 126, 0.1);
+    --shadow-medium: 0 20px 48px rgba(28, 92, 126, 0.15);
+}
+
+[data-theme="light"] body,
+[data-theme="light"] body.profile-body {
+    color: var(--text);
+    background:
+        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.72), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(118, 203, 239, 0.22), transparent 32%),
+        linear-gradient(180deg, #edf9ff 0%, #e2f5ff 48%, #cfeeff 100%);
+}
+
+[data-theme="light"] .navbar,
+[data-theme="light"] .side-menu-panel,
+[data-theme="light"] .footer,
+[data-theme="light"] .mobile-bottom-nav {
+    border-color: rgba(34, 112, 154, 0.18);
+    background: rgba(245, 251, 255, 0.92);
+}
+
+[data-theme="light"] .search-container,
+[data-theme="light"] .account-card,
+[data-theme="light"] .profile-dashboard,
+[data-theme="light"] .movie-card,
+[data-theme="light"] .skeleton-card,
+[data-theme="light"] .custom-list-card,
+[data-theme="light"] .default-watch-list,
+[data-theme="light"] .profile-stats > a,
+[data-theme="light"] .profile-empty,
+[data-theme="light"] .movie-modal-facts,
+[data-theme="light"] .watch-providers,
+[data-theme="light"] .movie-cast-item {
+    border-color: var(--border);
+    background: #ffffff;
+    box-shadow:
+        0 12px 30px rgba(28, 92, 126, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+
+[data-theme="light"] .search-input,
+[data-theme="light"] .filters select,
+[data-theme="light"] .account-form input,
+[data-theme="light"] .profile-edit-form input[type="text"],
+[data-theme="light"] .custom-list-form input,
+[data-theme="light"] .custom-list-form textarea {
+    color: var(--text);
+    caret-color: var(--day-blue-deep);
+    border-color: var(--border);
+    background-color: #ffffff;
+}
+
+[data-theme="light"] .search-input::placeholder,
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .search-input:hover,
+[data-theme="light"] .search-input:focus,
+[data-theme="light"] .filters select:hover,
+[data-theme="light"] .filters select:focus,
+[data-theme="light"] .account-form input:focus,
+[data-theme="light"] .profile-edit-form input[type="text"]:focus,
+[data-theme="light"] .custom-list-form input:focus,
+[data-theme="light"] .custom-list-form textarea:focus {
+    border-color: #3194c7;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(49, 148, 199, 0.14);
+}
+
+[data-theme="light"] .movie-card:hover,
+[data-theme="light"] .movie-card:focus-visible,
+[data-theme="light"] .profile-stats > a:hover {
+    border-color: rgba(49, 148, 199, 0.48);
+    background: #ffffff;
+    box-shadow:
+        0 18px 42px rgba(28, 92, 126, 0.16),
+        0 0 0 1px rgba(49, 148, 199, 0.08);
+}
+
+[data-theme="light"] .account-tabs,
+[data-theme="light"] .profile-edit-form,
+[data-theme="light"] .custom-list-form,
+[data-theme="light"] .password-security {
+    border-color: var(--border);
+    background: #f7fcff;
+}
+
+[data-theme="light"] .movie-modal-dialog {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: #ffffff;
+}
+
+[data-theme="light"] ::selection {
+    color: #102a43;
+    background: rgba(94, 190, 232, 0.42);
 }

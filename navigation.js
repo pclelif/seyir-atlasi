@@ -676,7 +676,7 @@ class CursorStarField {
                 this.pointer.y,
                 150
             );
-            const glowColor = isLight ? "64, 95, 181" : "143, 175, 255";
+            const glowColor = isLight ? "49, 148, 199" : "143, 175, 255";
             glow.addColorStop(0, `rgba(${glowColor}, 0.065)`);
             glow.addColorStop(0.35, `rgba(${glowColor}, 0.02)`);
             glow.addColorStop(1, `rgba(${glowColor}, 0)`);
@@ -744,7 +744,7 @@ class CursorStarField {
 
             const shimmer =
                 0.78 + Math.sin(time * 0.0018 + star.phase) * 0.22;
-            const color = isLight ? "64, 95, 181" : "199, 210, 254";
+            const color = isLight ? "23, 107, 150" : "199, 210, 254";
 
             context.beginPath();
             context.arc(
