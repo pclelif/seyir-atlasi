@@ -155,7 +155,7 @@ function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, but
 </td></tr>
 <tr><td bgcolor="#c8ceda" style="padding:24px 46px;border-top:1px solid rgba(255,255,255,.18);background-color:#c8ceda!important;background-image:linear-gradient(135deg,#d9dde6 0%,#b7c0cf 100%);">
 <p style="margin:0 0 10px;color:#283247;font-size:12px;line-height:1.6;">${escapeEmailHtml(securityNote)}</p>
-<p style="margin:0;color:#3e4a61;font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#304f9d;text-decoration:underline;">${safeLink}</a></p>
+<p style="margin:0;color:#283247;font-size:11px;line-height:1.55;word-break:break-all;">Buton çalışmıyorsa bu bağlantıyı tarayıcına yapıştır:<br><a href="${safeLink}" style="color:#304f9d;text-decoration:underline;">${safeLink}</a></p>
 </td></tr></table>
 </td></tr>
 <tr><td style="padding:22px 20px 0;text-align:center;color:#94a3b8;font-size:11px;line-height:1.6;">⋆ &nbsp; Yeni hikâyelerle rotanı çiz. &nbsp; ⋆<br>Bu e-posta SeyirAtlası hesap işlemin için gönderildi.</td></tr>
@@ -167,7 +167,7 @@ function verificationEmail(request, user, link) {
     return {
         subject: "SeyirAtlası rotanı doğrula",
         text: `${greeting}\n\nSeyirAtlası hesabını tamamlamak için e-posta adresini doğrula:\n${link}\n\nBu bağlantı 24 saat geçerlidir. Bu hesabı sen oluşturmadıysan e-postayı yok sayabilirsin.`,
-        html: brandedEmail({ baseUrl: appUrl(request), preview: "SeyirAtlası hesabını doğrula ve rotanı çizmeye başla.", eyebrow: "Rotanı başlat", title: "SeyirAtlası’na hoş geldin", greeting, message: "İzlediklerini biriktirmek, listelerini korumak ve kendi seyir rotanı oluşturmak için son bir adım kaldı.", buttonLabel: "E-posta adresimi doğrula", link, expiry: "Bu doğrulama bağlantısı 24 saat boyunca geçerlidir.", securityNote: "Bu hesabı sen oluşturmadıysan herhangi bir işlem yapmana gerek yok; bu e-postayı güvenle yok sayabilirsin." })
+        html: brandedEmail({ baseUrl: appUrl(request), preview: "SeyirAtlası hesabını doğrula ve rotanı çizmeye başla.", eyebrow: "Rotanı başlat", title: "SeyirAtlası’na hoş geldin", greeting, message: "İzlediklerini biriktirmek, listelerini korumak ve kendi seyir rotanı oluşturmak için son bir adım kaldı.", buttonLabel: "E-posta adresimi doğrula", link, expiry: "Bu doğrulama bağlantısı 24 saat boyunca geçerlidir.", securityNote: "Bu hesabı sen oluşturmadıysan herhangi bir işlem yapmana gerek yok, bu e-postayı güvenle yok sayabilirsin." })
     };
 }
 
