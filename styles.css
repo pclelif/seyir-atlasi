@@ -9029,7 +9029,7 @@ html:not([data-theme="light"]) .side-menu-brand img {
 ================================================== */
 
 [data-theme="light"] {
-    --day-gold: #ead27b;
+    --day-gold: #b79a3b;
     --day-gold-light: #ead27b;
     --day-blue-deep: #174d70;
     --day-blue: #3e91bd;
@@ -9712,25 +9712,12 @@ html:not([data-theme="light"]) .side-menu-brand img {
     filter:
         brightness(0)
         saturate(100%)
-        invert(87%)
-        sepia(38%)
-        saturate(653%)
-        hue-rotate(356deg)
-        brightness(100%)
-        contrast(86%);
-}
-
-[data-theme="light"] .logo-image,
-[data-theme="light"] .footer-brand img {
-    filter:
-        brightness(0)
-        saturate(100%)
-        invert(87%)
-        sepia(38%)
-        saturate(653%)
-        hue-rotate(356deg)
-        brightness(100%)
-        contrast(86%);
+        invert(62%)
+        sepia(34%)
+        saturate(885%)
+        hue-rotate(8deg)
+        brightness(91%)
+        contrast(82%);
 }
 
 .mobile-bottom-nav {
