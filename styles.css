@@ -3951,7 +3951,7 @@ html:not([data-theme="light"]) .footer-brand img {
 .footer-inner {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(180px, auto) 1fr auto;
+    grid-template-columns: auto 1fr auto;
     grid-template-rows: auto auto;
     align-items: center;
     column-gap: 30px;
@@ -3965,24 +3965,21 @@ html:not([data-theme="light"]) .footer-brand img {
 .footer-inner > .footer-brand {
     grid-column: 1;
     grid-row: 1;
-    align-self: end;
-}
-
-.footer-inner > .footer-brand + p {
-    grid-column: 1;
-    grid-row: 2;
-    align-self: start;
-    margin: 0;
 }
 
 .footer-inner > .footer-contact {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
 }
 
 .footer-inner > .footer-copy {
     grid-column: 3;
-    grid-row: 1 / span 2;
+    grid-row: 1;
+}
+
+.footer-inner > .footer-legal {
+    grid-column: 1 / -1;
+    grid-row: 2;
 }
 
 .footer-brand img {
@@ -5699,9 +5696,9 @@ select:focus-visible {
     }
 
     .footer-inner > .footer-brand,
-    .footer-inner > .footer-brand + p,
     .footer-inner > .footer-contact,
-    .footer-inner > .footer-copy {
+    .footer-inner > .footer-copy,
+    .footer-inner > .footer-legal {
         grid-column: 1;
         grid-row: auto;
         align-self: center;

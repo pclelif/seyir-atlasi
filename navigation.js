@@ -805,7 +805,7 @@ document.addEventListener(
         if (!footer) {
             footer = document.createElement("footer");
             footer.className = "footer";
-            footer.innerHTML = `<div class="footer-inner"><a href="index.html" class="footer-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><p>Sinema evrenindeki rotan.</p><p class="footer-copy">© 2026 SeyirAtlası</p></div>`;
+            footer.innerHTML = `<div class="footer-inner"><a href="index.html" class="footer-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><p class="footer-copy">© 2026 SeyirAtlası</p></div>`;
             document.body.append(footer);
         }
         const footerInner = footer.querySelector(".footer-inner");
