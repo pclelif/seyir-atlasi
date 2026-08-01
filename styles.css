@@ -3951,13 +3951,38 @@ html:not([data-theme="light"]) .footer-brand img {
 .footer-inner {
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: minmax(180px, auto) 1fr auto;
+    grid-template-rows: auto auto;
     align-items: center;
-    gap: 30px;
+    column-gap: 30px;
+    row-gap: 4px;
     max-width: var(--content-width);
     min-height: 120px;
     margin: 0 auto;
     padding: 28px 40px;
+}
+
+.footer-inner > .footer-brand {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+}
+
+.footer-inner > .footer-brand + p {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    margin: 0;
+}
+
+.footer-inner > .footer-contact {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.footer-inner > .footer-copy {
+    grid-column: 3;
+    grid-row: 1 / span 2;
 }
 
 .footer-brand img {
@@ -5666,10 +5691,20 @@ select:focus-visible {
 
     .footer-inner {
         grid-template-columns: 1fr;
+        grid-template-rows: none;
         justify-items: center;
         gap: 15px;
         padding: 34px 18px;
         text-align: center;
+    }
+
+    .footer-inner > .footer-brand,
+    .footer-inner > .footer-brand + p,
+    .footer-inner > .footer-contact,
+    .footer-inner > .footer-copy {
+        grid-column: 1;
+        grid-row: auto;
+        align-self: center;
     }
 
     .movie-info {
