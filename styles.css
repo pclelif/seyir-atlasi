@@ -6265,6 +6265,10 @@ select:focus-visible {
     font-size: 0.72rem;
 }
 
+[data-theme="light"] .pusula-ai-badge span {
+    color: var(--day-gold, #9a7d20);
+}
+
 .pusula-heading p {
     margin: 0;
     color: var(--text-soft);
