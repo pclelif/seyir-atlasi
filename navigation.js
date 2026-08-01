@@ -355,25 +355,7 @@ class SideNavigation {
                     <strong>${this.escapeHTML(account.name)}</strong>
                     <small>Oturum açık</small>
                 </div>
-                <button type="button" class="side-account-logout" aria-label="Çıkış yap" title="Çıkış yap">↪</button>
             `;
-
-            status
-                .querySelector(
-                    ".side-account-logout"
-                )
-                ?.addEventListener(
-                    "click",
-                    () => {
-                        localStorage.removeItem(
-                            "seyirAtlasiSession"
-                        );
-                        sessionStorage.removeItem(
-                            "seyirAtlasiSession"
-                        );
-                        window.location.reload();
-                    }
-                );
         } else {
             status.innerHTML = `
                 <div class="side-account-avatar is-guest">?</div>

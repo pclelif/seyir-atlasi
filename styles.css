@@ -592,23 +592,6 @@ body.side-menu-open {
     text-decoration: none;
 }
 
-.side-account-logout {
-    display: grid;
-    place-items: center;
-    width: 31px;
-    height: 31px;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 1rem;
-}
-
-.side-account-logout:hover {
-    color: var(--error);
-    background: rgba(252, 165, 165, 0.08);
-}
-
 .toast-container {
     position: fixed;
     top: 92px;
