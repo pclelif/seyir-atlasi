@@ -3515,7 +3515,7 @@ html:not([data-theme="light"]) .footer-brand img {
 }
 
 [data-theme="light"] .profile-section-kicker {
-    color: #8f4568;
+    color: #b15f82;
 }
 
 .profile-section-heading {
@@ -9571,7 +9571,11 @@ html:not([data-theme="light"]) .side-menu-brand img {
 }
 
 [data-theme="light"] .profile-section-kicker {
-    color: #8f4568;
+    color: #b15f82;
+}
+
+[data-theme="light"] .menu-toggle {
+    color: var(--text-soft);
 }
 
 [data-theme="light"] .profile-hero .profile-edit-toggle {
