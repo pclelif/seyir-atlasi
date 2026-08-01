@@ -241,6 +241,14 @@
                         </div>
                     </div>
                 </fieldset>
+                <fieldset class="profile-taste-fields">
+                    <legend>Seyir zevklerin</legend>
+                    <p class="avatar-group-label">En sevdiğin türler <small>en fazla 5</small></p>
+                    <div class="profile-genre-options">
+                        <label><input type="checkbox" name="genres" value="Aksiyon"><span>Aksiyon</span></label><label><input type="checkbox" name="genres" value="Animasyon"><span>Animasyon</span></label><label><input type="checkbox" name="genres" value="Bilim Kurgu"><span>Bilim Kurgu</span></label><label><input type="checkbox" name="genres" value="Dram"><span>Dram</span></label><label><input type="checkbox" name="genres" value="Fantastik"><span>Fantastik</span></label><label><input type="checkbox" name="genres" value="Gerilim"><span>Gerilim</span></label><label><input type="checkbox" name="genres" value="Komedi"><span>Komedi</span></label><label><input type="checkbox" name="genres" value="Korku"><span>Korku</span></label><label><input type="checkbox" name="genres" value="Romantik"><span>Romantik</span></label><label><input type="checkbox" name="genres" value="Suç"><span>Suç</span></label>
+                    </div>
+                    <div class="profile-favorite-fields"><label><span>Favori filmin</span><input type="text" name="favoriteMovie" maxlength="80" placeholder="Örn. Interstellar"></label><label><span>Favori dizin</span><input type="text" name="favoriteSeries" maxlength="80" placeholder="Örn. Dark"></label><label><span>Favori karakterin</span><input type="text" name="favoriteCharacter" maxlength="80" placeholder="Örn. Ellen Ripley"></label></div>
+                </fieldset>
                 <div class="profile-edit-actions">
                     <button type="submit">Değişiklikleri Kaydet</button>
                     <button type="button" id="profileEditCancel">Vazgeç</button>
@@ -281,6 +289,11 @@
                         <div><strong id="collectionTotalCount">0</strong><span>Toplam koleksiyon</span></div>
                         <div><strong id="averageRating">—</strong><span>Ortalama puanın</span></div>
                     </div>
+                </section>
+
+                <section class="profile-taste-summary" id="profileTasteSummary" hidden aria-labelledby="profileTasteTitle">
+                    <div class="profile-section-heading"><div><span class="profile-section-kicker">Seyir kimliğin</span><h2 id="profileTasteTitle">Favorilerin</h2></div></div>
+                    <div class="profile-genre-chips" id="profileGenreChips"></div><div class="profile-favorite-summary" id="profileFavoriteSummary"></div>
                 </section>
 
                 <section class="profile-recent" aria-labelledby="recentTitle">

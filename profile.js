@@ -181,6 +181,7 @@ class LocalAccountManager {
         document.getElementById("profileSharesList")?.addEventListener("click", (event) => { const button = event.target.closest("[data-revoke-share]"); if (button) this.revokeShare(button.dataset.revokeShare); });
         document.getElementById("profileVisibilityToggle")?.addEventListener("change", (event) => this.updateProfileVisibility(event.target.checked));
         document.getElementById("exportAccountBtn")?.addEventListener("click", () => this.exportAccountData());
+        document.querySelectorAll('[name="genres"]').forEach((input)=>input.addEventListener("change",()=>{const checked=document.querySelectorAll('[name="genres"]:checked');if(checked.length>5){input.checked=false;window.showToast?.("En fazla 5 tür seçebilirsin.");}}));
 
         document
             .getElementById(
@@ -800,7 +801,7 @@ class LocalAccountManager {
         const container = document.getElementById("profileSharesList"); if (!container || !this.getCurrentAccount()) return;
         try {
             const response = await fetch("/api/lists/shares", { credentials: "same-origin" }); const data = await response.json(); if (!response.ok) throw new Error(data.error);
-            container.innerHTML = data.shares.length ? data.shares.map((share) => `<article class="profile-share-row"><div><strong>${this.escapeHTML(share.title)}</strong><small>${share.item_count} ${share.media_type === "movie" ? "film" : "dizi"}</small></div><div><a href="${share.url}" target="_blank" rel="noopener">Görüntüle</a><button type="button" data-revoke-share="${share.share_id}">Paylaşımı Kapat</button></div></article>`).join("") : `<p class="library-empty">Henüz bağlantıyla paylaştığın bir liste yok.</p>`;
+            container.innerHTML = data.shares.length ? data.shares.map((share) => `<article class="profile-share-row"><div><strong>${this.escapeHTML(share.title)}</strong><small>${share.item_count} ${share.media_type === "movie" ? "film" : "dizi"}</small></div><div><a href="${share.url}" target="_blank" rel="noopener">Görüntüle</a><button type="button" data-revoke-share="${share.share_id}">Paylaşımı Durdur</button></div></article>`).join("") : `<p class="library-empty">Henüz bağlantıyla paylaştığın bir liste yok.</p>`;
         } catch { container.innerHTML = `<p class="library-empty">Paylaşımlar şu anda yüklenemedi.</p>`; }
     }
 
@@ -816,7 +817,7 @@ class LocalAccountManager {
     }
 
     async revokeShare(shareId) {
-        if (!confirm("Bu paylaşım bağlantısını kapatmak istiyor musun?")) return;
+        if (!confirm("Bu paylaşımı durdurmak istiyor musun?")) return;
         try { const response = await fetch(`/api/lists/share/${encodeURIComponent(shareId)}`, { method: "DELETE", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" }); const data = await response.json(); if (!response.ok) throw new Error(data.error); window.showToast?.(data.message); this.loadSharedLists(); }
         catch (error) { window.showToast?.(error.message); }
     }
@@ -907,6 +908,12 @@ class LocalAccountManager {
                 avatarInput.checked = true;
             }
 
+            const preferences=account.preferences||{};
+            form.querySelectorAll('[name="genres"]').forEach((input)=>{input.checked=(preferences.genres||[]).includes(input.value);});
+            form.elements.favoriteMovie.value=preferences.favoriteMovie||"";
+            form.elements.favoriteSeries.value=preferences.favoriteSeries||"";
+            form.elements.favoriteCharacter.value=preferences.favoriteCharacter||"";
+
             document.getElementById(
                 "profileNameInput"
             ).focus();
@@ -937,9 +944,10 @@ class LocalAccountManager {
         }
 
         const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
+        const preferences={genres:formData.getAll("genres").slice(0,5),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||"")};
         this.setBusy(form, true);
         try {
-            const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar }) });
+            const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar, preferences }) });
             this.cacheAccount(user);
             this.toggleProfileEdit(false);
             this.render();
@@ -1064,12 +1072,20 @@ class LocalAccountManager {
         const unique=new Set([...Object.keys(library.favorites||{}),...Object.keys(library.watchlist||{}),...Object.keys(library.watched||{}),...Object.keys(seriesLibrary.favorites||{}).map(id=>`tv:${id}`),...Object.keys(seriesLibrary.watchlist||{}).map(id=>`tv:${id}`),...Object.keys(seriesLibrary.watched||{}).map(id=>`tv:${id}`)]).size;
         const ratings=Object.values(library.ratings||{}).map(Number).filter(Number.isFinite); const average=ratings.length?(ratings.reduce((sum,value)=>sum+value,0)/ratings.length).toFixed(1):"—";
         document.getElementById("monthWatchedCount").textContent=inMonth; document.getElementById("yearWatchedCount").textContent=inYear; document.getElementById("collectionTotalCount").textContent=unique; document.getElementById("averageRating").textContent=average;
+        this.renderTasteSummary(account.preferences||{});
         this.renderProfileVisibility(account);
 
         this.renderRecentMovies(
             library,
             seriesLibrary
         );
+    }
+
+    renderTasteSummary(preferences) {
+        const section=document.getElementById("profileTasteSummary"); const genres=Array.isArray(preferences.genres)?preferences.genres:[]; const favorites=[["Favori film",preferences.favoriteMovie],["Favori dizi",preferences.favoriteSeries],["Favori karakter",preferences.favoriteCharacter]].filter(([,value])=>value);
+        section.hidden=!genres.length&&!favorites.length;
+        document.getElementById("profileGenreChips").innerHTML=genres.map(item=>`<span>${this.escapeHTML(item)}</span>`).join("");
+        document.getElementById("profileFavoriteSummary").innerHTML=favorites.map(([label,value])=>`<div><small>${label}</small><strong>${this.escapeHTML(value)}</strong></div>`).join("");
     }
 
     renderRecentMovies(
