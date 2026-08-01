@@ -19,6 +19,7 @@ class SideNavigation {
         this.renderAccountStatus();
         this.setupToastContainer();
         this.setupEvents();
+        this.requireCurrentTerms();
     }
 
     setupArchiveAlignment() {
@@ -438,6 +439,53 @@ class SideNavigation {
         };
     }
 
+    async requireCurrentTerms() {
+        try {
+            const response = await fetch("/api/auth/me", { credentials: "same-origin" });
+            if (!response.ok) return;
+            const { user } = await response.json();
+            if (user?.termsAccepted) return;
+
+            const modal = document.createElement("div");
+            modal.className = "terms-renewal";
+            modal.setAttribute("role", "dialog");
+            modal.setAttribute("aria-modal", "true");
+            modal.setAttribute("aria-labelledby", "termsRenewalTitle");
+            modal.innerHTML = `<div class="terms-renewal-card"><span class="legal-eyebrow">Bir defalık işlem</span><h2 id="termsRenewalTitle">Koşullarımızı güncelledik</h2><p>SeyirAtlası’nı kullanmaya devam etmek için sadeleştirdiğimiz <a href="kullanim-kosullari.html" target="_blank">Kullanım Koşulları</a>nı inceleyip kabul etmelisin. Verilerinin kullanımını <a href="kvkk.html" target="_blank">KVKK Aydınlatma Metni</a>nde görebilirsin.</p><label><input type="checkbox"><span>Kullanım Koşulları’nı okudum ve kabul ediyorum.</span></label><div><button type="button" data-accept-terms disabled>Kabul et ve devam et</button><button type="button" data-decline-terms>Çıkış yap</button></div><small class="terms-renewal-error" aria-live="polite"></small></div>`;
+            document.body.append(modal);
+            document.body.classList.add("modal-open");
+            const checkbox = modal.querySelector('input[type="checkbox"]');
+            const accept = modal.querySelector("[data-accept-terms]");
+            const decline = modal.querySelector("[data-decline-terms]");
+            const error = modal.querySelector(".terms-renewal-error");
+            checkbox.addEventListener("change", () => { accept.disabled = !checkbox.checked; });
+            accept.addEventListener("click", async () => {
+                accept.disabled = true;
+                try {
+                    const result = await fetch("/api/auth/accept-terms", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ termsAccepted: true, termsVersion: "1.0" }) });
+                    const data = await result.json();
+                    if (!result.ok) throw new Error(data.error || "İşlem tamamlanamadı.");
+                    modal.remove();
+                    document.body.classList.remove("modal-open");
+                    window.showToast?.(data.message);
+                } catch (requestError) {
+                    error.textContent = requestError.message;
+                    accept.disabled = false;
+                }
+            });
+            decline.addEventListener("click", async () => {
+                decline.disabled = true;
+                try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" }); } catch { /* Yerel oturum yine temizlenir. */ }
+                localStorage.removeItem("seyirAtlasiSession");
+                sessionStorage.removeItem("seyirAtlasiSession");
+                location.href = "profile.html";
+            });
+            checkbox.focus();
+        } catch {
+            // Hesap servisi kapalıysa sayfanın geri kalanı çalışmaya devam eder.
+        }
+    }
+
     setupEvents() {
         this.toggle.addEventListener(
             "click",
@@ -753,6 +801,22 @@ class CursorStarField {
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+        let footer = document.querySelector(".footer");
+        if (!footer) {
+            footer = document.createElement("footer");
+            footer.className = "footer";
+            footer.innerHTML = `<div class="footer-inner"><a href="index.html" class="footer-brand"><img src="images/logo.svg" alt=""><span>SeyirAtlası</span></a><p>Sinema evrenindeki rotan.</p><p class="footer-copy">© 2026 SeyirAtlası</p></div>`;
+            document.body.append(footer);
+        }
+        const footerInner = footer.querySelector(".footer-inner");
+        if (footerInner && !footerInner.querySelector(".footer-legal")) {
+            const legalLinks = document.createElement("nav");
+            legalLinks.className = "footer-legal";
+            legalLinks.setAttribute("aria-label", "Yasal bilgiler");
+            legalLinks.innerHTML = `<a href="kvkk.html">KVKK Aydınlatma Metni</a><a href="gizlilik.html">Gizlilik ve Çerez</a><a href="kullanim-kosullari.html">Kullanım Koşulları</a>`;
+            footerInner.append(legalLinks);
+        }
+
         const updateVisualViewport = () => {
             const viewport = window.visualViewport;
             const height = viewport?.height || window.innerHeight;

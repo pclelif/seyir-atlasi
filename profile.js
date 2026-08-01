@@ -597,10 +597,16 @@ class LocalAccountManager {
             return;
         }
 
+        const termsAccepted = formData.get("termsAccepted") === "on";
+        if (!termsAccepted) {
+            this.showFeedback("Hesap oluşturmak için Kullanım Koşulları’nı kabul etmelisin.", true);
+            return;
+        }
+
         this.showFeedback("Hesabın oluşturuluyor, lütfen bekle…");
         this.setBusy(form, true);
         try {
-            const result = await this.api("register", { method: "POST", body: JSON.stringify({ name, email, password }) });
+            const result = await this.api("register", { method: "POST", body: JSON.stringify({ name, email, password, termsAccepted, termsVersion: "1.0" }) });
             form.reset();
             this.validatePasswordConfirmation();
             this.updatePasswordSecurity("");

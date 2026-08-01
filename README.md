@@ -100,6 +100,8 @@ macOS'ta proje ile birlikte yerel Node.js çalışma zamanı bulunuyorsa
 | `SMTP_USER` / `SMTP_PASS` | Genellikle evet | SMTP kimlik bilgileri |
 | `MAIL_FROM` | E-posta için evet | Gönderen adı ve adresi |
 | `BREVO_API_KEY` | Ücretsiz Render'da e-posta için | SMTP portu yerine HTTPS üzerinden Brevo API anahtarı |
+| `ANALYTICS_SECRET` | Üretimde evet | Günlük tekil ziyaret özetlerini üretmek için uzun, rastgele gizli değer |
+| `ADMIN_EMAIL` | İstatistik özeti için evet | `/api/analytics/summary` erişimine izin verilen doğrulanmış hesap e-postası |
 
 Üç API anahtarı da yalnızca `server.js` tarafından `.env` dosyasından veya
 sunucu ortamından okunur. Tarayıcı TMDB ve OMDb'ye doğrudan bağlanmaz;
@@ -200,6 +202,19 @@ ortam değişkenleri alanında saklayın.
 - `.env.example` yalnızca örnek değerler içerir ve güvenle paylaşılabilir.
 - Bir anahtar yanlışlıkla yayımlanırsa ilgili sağlayıcıdan hemen iptal edip
   yenisini oluşturun.
+- Üretimde HTTP istekleri HTTPS'e yönlendirilir; HSTS, CSP ve temel tarayıcı
+  güvenlik başlıkları sunucu tarafından eklenir.
+
+## Ziyaret istatistikleri
+
+Uygulama üçüncü taraf analitik betiği veya analitik çerezi kullanmaz. Her sayfa
+görüntülemesi kendi sunucusundaki `/api/analytics/view` uç noktasına bildirilir.
+IP adresi veritabanına yazılmaz; yalnızca gün ve `ANALYTICS_SECRET` ile günlük,
+geri döndürülemez bir özet üretmek için anlık kullanılır. Bu özetler günlük
+tekil ziyaret tahmini ve sayfa görüntüleme toplamı üretir, 395 gün sonra silinir.
+
+Son 30 günlük özet, `ADMIN_EMAIL` ile eşleşen doğrulanmış hesap oturumu üzerinden
+`GET /api/analytics/summary` adresinden JSON olarak görüntülenebilir.
 
 ## Bilinen sınırlar
 

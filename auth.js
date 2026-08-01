@@ -1,4 +1,4 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual, createHash } from "node:crypto";
+import { randomBytes, scrypt as scryptCallback, timingSafeEqual, createHash, createHmac } from "node:crypto";
 import { promisify } from "node:util";
 import pg from "pg";
 import nodemailer from "nodemailer";
@@ -41,7 +41,7 @@ function normalizeEmail(value) {
 }
 
 function publicUser(row) {
-    return { id: row.id, name: row.name, email: row.email, avatar: row.avatar, preferences: row.profile_preferences || {}, emailVerified: Boolean(row.email_verified_at), profilePublic: Boolean(row.profile_public), profileSlug: row.profile_slug || null, createdAt: row.created_at };
+    return { id: row.id, name: row.name, email: row.email, avatar: row.avatar, preferences: row.profile_preferences || {}, emailVerified: Boolean(row.email_verified_at), profilePublic: Boolean(row.profile_public), profileSlug: row.profile_slug || null, termsAccepted: row.terms_version === "1.0" && Boolean(row.terms_accepted_at), termsVersion: row.terms_version || null, createdAt: row.created_at };
 }
 
 function tokenHash(token) {
@@ -247,6 +247,13 @@ export async function initializeAuth() {
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             PRIMARY KEY (user_id, media_type)
         );
+        CREATE TABLE IF NOT EXISTS analytics_daily_visitors (
+            visit_date DATE NOT NULL,
+            visitor_hash CHAR(64) NOT NULL,
+            page_views INTEGER NOT NULL DEFAULT 1,
+            PRIMARY KEY (visit_date, visitor_hash)
+        );
+        CREATE INDEX IF NOT EXISTS analytics_daily_visitors_date_idx ON analytics_daily_visitors(visit_date);
         CREATE TABLE IF NOT EXISTS shared_lists (
             id BIGSERIAL PRIMARY KEY,
             share_id VARCHAR(24) NOT NULL UNIQUE,
@@ -264,8 +271,11 @@ export async function initializeAuth() {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_public BOOLEAN NOT NULL DEFAULT FALSE;
         ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_slug VARCHAR(60);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_preferences JSONB NOT NULL DEFAULT '{}'::jsonb;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMPTZ;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_version VARCHAR(12);
         CREATE UNIQUE INDEX IF NOT EXISTS users_profile_slug_idx ON users(profile_slug) WHERE profile_slug IS NOT NULL;
     `);
+    await pool.query("DELETE FROM analytics_daily_visitors WHERE visit_date < CURRENT_DATE - INTERVAL '395 days'");
     if (process.env.SMTP_HOST) {
         mailer = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
@@ -278,6 +288,65 @@ export async function initializeAuth() {
         });
     }
     return true;
+}
+
+function analyticsVisitorHash(request, date) {
+    const forwarded = String(request.headers["x-forwarded-for"] || "").split(",")[0].trim();
+    const address = forwarded || request.socket.remoteAddress || "unknown";
+    const secret = process.env.ANALYTICS_SECRET || process.env.DATABASE_URL || "seyir-atlasi-local";
+    return createHmac("sha256", secret).update(`${date}:${address}`).digest("hex");
+}
+
+export async function handleAnalytics(request, response, url) {
+    if (!pool || !url.pathname.startsWith("/api/analytics/")) return false;
+
+    try {
+        if (request.method === "POST" && url.pathname === "/api/analytics/view") {
+            const date = new Date().toISOString().slice(0, 10);
+            const visitorHash = analyticsVisitorHash(request, date);
+            await pool.query(
+                `INSERT INTO analytics_daily_visitors(visit_date, visitor_hash, page_views)
+                 VALUES($1, $2, 1)
+                 ON CONFLICT(visit_date, visitor_hash)
+                 DO UPDATE SET page_views = analytics_daily_visitors.page_views + 1`,
+                [date, visitorHash]
+            );
+            response.writeHead(204, { "Cache-Control": "no-store" });
+            response.end();
+            return true;
+        }
+
+        if (request.method === "GET" && url.pathname === "/api/analytics/summary") {
+            const user = await currentUser(request);
+            const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL);
+            if (!user || !adminEmail || normalizeEmail(user.email) !== adminEmail) {
+                reply(response, 404, { error: "Uç nokta bulunamadı." });
+                return true;
+            }
+            const result = await pool.query(`
+                SELECT visit_date AS date,
+                       COUNT(*)::INTEGER AS visitors,
+                       COALESCE(SUM(page_views), 0)::INTEGER AS page_views
+                FROM analytics_daily_visitors
+                WHERE visit_date >= CURRENT_DATE - INTERVAL '30 days'
+                GROUP BY visit_date
+                ORDER BY visit_date DESC
+            `);
+            reply(response, 200, { days: result.rows });
+            return true;
+        }
+    } catch (error) {
+        console.error("Analytics:", error.message);
+        if (request.method === "POST") {
+            response.writeHead(204, { "Cache-Control": "no-store" });
+            response.end();
+        } else {
+            reply(response, 500, { error: "İstatistikler şu anda alınamıyor." });
+        }
+        return true;
+    }
+
+    return false;
 }
 
 function cleanLibrary(value, mediaType) {
@@ -377,10 +446,11 @@ export async function handleAuth(request, response, url) {
         if (request.method === "POST" && url.pathname === "/api/auth/register") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const name = String(data.name || "").trim().replace(/\s+/g, " "); const email = normalizeEmail(data.email); const password = String(data.password || "");
+            if (data.termsAccepted !== true || data.termsVersion !== "1.0") return reply(response, 400, { error: "Kullanım Koşulları kabul edilmelidir." }), true;
             if (name.length < 2 || name.length > 80 || !/^\S+@\S+\.\S+$/.test(email) || !validPassword(password)) return reply(response, 400, { error: "Bilgileri ve şifre koşullarını kontrol et." }), true;
             const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
             if (existing.rowCount) return reply(response, 409, { error: "Bu e-posta adresi zaten kayıtlı." }), true;
-            const result = await pool.query("INSERT INTO users(name, email, password_hash) VALUES($1,$2,$3) RETURNING *", [name, email, await passwordHash(password)]);
+            const result = await pool.query("INSERT INTO users(name, email, password_hash, terms_accepted_at, terms_version) VALUES($1,$2,$3,NOW(),$4) RETURNING *", [name, email, await passwordHash(password), "1.0"]);
             const token = await createPurposeToken(result.rows[0].id, "verify"); const link = `${appUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`; const emailContent = verificationEmail(request, result.rows[0], link);
             await sendMail(email, emailContent.subject, emailContent.text, emailContent.html);
             return reply(response, 201, { message: "Hesabın oluşturuldu. E-postana gönderdiğimiz bağlantıyla hesabını doğrula.", emailSent: true }), true;
@@ -403,6 +473,13 @@ export async function handleAuth(request, response, url) {
         }
         if (request.method === "GET" && url.pathname === "/api/auth/me") {
             const user = await currentUser(request); return reply(response, user ? 200 : 401, user ? { user: publicUser(user) } : { error: "Oturum bulunamadı." }), true;
+        }
+        if (request.method === "POST" && url.pathname === "/api/auth/accept-terms") {
+            const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
+            const data = await body(request);
+            if (data.termsAccepted !== true || data.termsVersion !== "1.0") return reply(response, 400, { error: "Güncel Kullanım Koşulları kabul edilmelidir." }), true;
+            const result = await pool.query("UPDATE users SET terms_accepted_at=NOW(),terms_version=$1,updated_at=NOW() WHERE id=$2 RETURNING *", ["1.0", user.id]);
+            return reply(response, 200, { user: publicUser(result.rows[0]), message: "Kullanım Koşulları kabul edildi." }), true;
         }
         if (request.method === "PATCH" && url.pathname === "/api/auth/profile") {
             const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
@@ -427,7 +504,7 @@ export async function handleAuth(request, response, url) {
         if (request.method === "GET" && url.pathname === "/api/auth/export") {
             const user = await currentUser(request); if (!user) return reply(response,401,{error:"Oturum süresi dolmuş."}),true;
             const [libraries,shares]=await Promise.all([pool.query("SELECT media_type,data,updated_at FROM user_libraries WHERE user_id=$1",[user.id]),pool.query("SELECT share_id,media_type,title,description,items,ratings,is_public,created_at,updated_at FROM shared_lists WHERE user_id=$1",[user.id])]);
-            return reply(response,200,{exportedAt:new Date().toISOString(),account:publicUser(user),libraries:libraries.rows,sharedLists:shares.rows}),true;
+            return reply(response,200,{exportedAt:new Date().toISOString(),account:{...publicUser(user),termsAcceptedAt:user.terms_accepted_at,termsVersion:user.terms_version},libraries:libraries.rows,sharedLists:shares.rows}),true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/change-password") {
             const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;

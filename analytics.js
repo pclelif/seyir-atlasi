@@ -1,14 +1,12 @@
-const GA_MEASUREMENT_ID = "G-B6TZNKWKVD";
-
-window.dataLayer = window.dataLayer || [];
-window.gtag = window.gtag || function gtag() {
-    window.dataLayer.push(arguments);
-};
-
-window.gtag("js", new Date());
-window.gtag("config", GA_MEASUREMENT_ID);
-
-const googleTag = document.createElement("script");
-googleTag.async = true;
-googleTag.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-document.head.append(googleTag);
+// Çerez, kalıcı tanımlayıcı veya üçüncü taraf analitik servisi kullanmaz.
+// Sunucu yalnızca günlük toplam görüntüleme ve günlük tekil ziyaret tahmini tutar.
+if (location.protocol === "http:" || location.protocol === "https:") {
+    const payload = new Blob([], { type: "application/octet-stream" });
+    if (!navigator.sendBeacon?.("/api/analytics/view", payload)) {
+        fetch("/api/analytics/view", {
+            method: "POST",
+            credentials: "same-origin",
+            keepalive: true
+        }).catch(() => {});
+    }
+}

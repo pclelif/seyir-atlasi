@@ -2,7 +2,7 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { handleAuth, handleLibrary, initializeAuth } from "./auth.js";
+import { handleAnalytics, handleAuth, handleLibrary, initializeAuth } from "./auth.js";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const envPath = resolve(root, ".env");
@@ -302,6 +302,18 @@ const contentTypes = {
 
 const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
+    const forwardedProtocol = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+    const production = process.env.NODE_ENV === "production";
+    if (production && forwardedProtocol && forwardedProtocol !== "https") {
+        response.writeHead(308, { Location: `https://${request.headers.host}${request.url}` });
+        return response.end();
+    }
+    response.setHeader("X-Content-Type-Options", "nosniff");
+    response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    response.setHeader("X-Frame-Options", "DENY");
+    response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+    response.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests");
+    if (production) response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     const origin = request.headers.origin;
     if (origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
         response.setHeader("Access-Control-Allow-Origin", origin);
@@ -314,6 +326,15 @@ const server = http.createServer(async (request, response) => {
     }
     if (url.pathname.startsWith("/api/auth/")) {
         return json(response, 503, { error: "Hesap sistemi henüz yapılandırılmadı." });
+    }
+    if (url.pathname.startsWith("/api/analytics/") && authReady) {
+        const handled = await handleAnalytics(request, response, url);
+        if (handled) return;
+    }
+    if (url.pathname.startsWith("/api/analytics/")) {
+        return request.method === "POST"
+            ? response.writeHead(204, { "Cache-Control": "no-store" }).end()
+            : json(response, 404, { error: "Uç nokta bulunamadı." });
     }
     if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/") || url.pathname.startsWith("/api/profiles/")) && authReady) {
         return handleLibrary(request, response, url);
