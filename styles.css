@@ -9055,10 +9055,10 @@ html:not([data-theme="light"]) .side-menu-brand img {
 [data-theme="light"] body,
 [data-theme="light"] body.profile-body {
     background:
-        radial-gradient(circle at 10% 8%, rgba(74, 170, 218, 0.38), transparent 27%),
-        radial-gradient(circle at 88% 15%, rgba(58, 148, 199, 0.3), transparent 30%),
-        radial-gradient(circle at 52% 70%, rgba(111, 188, 226, 0.26), transparent 35%),
-        linear-gradient(180deg, #dceff9 0%, #c3e1f1 45%, #9fcce3 100%);
+        radial-gradient(circle at 10% 8%, rgba(54, 153, 204, 0.46), transparent 27%),
+        radial-gradient(circle at 88% 15%, rgba(36, 125, 177, 0.38), transparent 30%),
+        radial-gradient(circle at 52% 70%, rgba(74, 159, 204, 0.34), transparent 35%),
+        linear-gradient(180deg, #b8dbea 0%, #83b8d2 48%, #4d91b4 100%);
 }
 
 [data-theme="light"] .navbar {
