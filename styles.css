@@ -9055,10 +9055,10 @@ html:not([data-theme="light"]) .side-menu-brand img {
 [data-theme="light"] body,
 [data-theme="light"] body.profile-body {
     background:
-        radial-gradient(circle at 10% 8%, rgba(115, 196, 234, 0.32), transparent 27%),
-        radial-gradient(circle at 88% 15%, rgba(89, 170, 215, 0.24), transparent 30%),
-        radial-gradient(circle at 52% 70%, rgba(156, 213, 241, 0.2), transparent 35%),
-        linear-gradient(180deg, #eaf8ff 0%, #d5edfa 45%, #b9ddf2 100%);
+        radial-gradient(circle at 10% 8%, rgba(74, 170, 218, 0.38), transparent 27%),
+        radial-gradient(circle at 88% 15%, rgba(58, 148, 199, 0.3), transparent 30%),
+        radial-gradient(circle at 52% 70%, rgba(111, 188, 226, 0.26), transparent 35%),
+        linear-gradient(180deg, #dceff9 0%, #c3e1f1 45%, #9fcce3 100%);
 }
 
 [data-theme="light"] .navbar {
@@ -9574,9 +9574,8 @@ html:not([data-theme="light"]) .side-menu-brand img {
     color: #b15f82;
 }
 
-[data-theme="light"] .menu-toggle,
-[data-theme="light"] .nav-links a:not(.is-active) {
-    color: #294d68;
+[data-theme="light"] .menu-toggle {
+    color: var(--text-soft);
 }
 
 [data-theme="light"] .profile-hero .profile-edit-toggle {
