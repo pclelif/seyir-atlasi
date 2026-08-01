@@ -181,7 +181,7 @@ class LocalAccountManager {
         document.getElementById("profileSharesList")?.addEventListener("click", (event) => { const button = event.target.closest("[data-revoke-share]"); if (button) this.revokeShare(button.dataset.revokeShare); });
         document.getElementById("profileVisibilityToggle")?.addEventListener("change", (event) => this.updateProfileVisibility(event.target.checked));
         document.getElementById("exportAccountBtn")?.addEventListener("click", () => this.exportAccountData());
-        document.querySelectorAll('[name="genres"]').forEach((input)=>input.addEventListener("change",()=>{const checked=document.querySelectorAll('[name="genres"]:checked');if(checked.length>5){input.checked=false;window.showToast?.("En fazla 5 tür seçebilirsin.");}}));
+        document.querySelectorAll('[name="genres"]').forEach((input)=>input.addEventListener("change",()=>{const checked=document.querySelectorAll('[name="genres"]:checked');if(checked.length>3){input.checked=false;window.showToast?.("En fazla 3 tür seçebilirsin.");}}));
 
         document
             .getElementById(
@@ -944,7 +944,7 @@ class LocalAccountManager {
         }
 
         const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
-        const preferences={genres:formData.getAll("genres").slice(0,5),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||"")};
+        const preferences={genres:formData.getAll("genres").slice(0,3),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||"")};
         this.setBusy(form, true);
         try {
             const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar, preferences }) });
