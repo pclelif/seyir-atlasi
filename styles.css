@@ -9574,8 +9574,9 @@ html:not([data-theme="light"]) .side-menu-brand img {
     color: #b15f82;
 }
 
-[data-theme="light"] .menu-toggle {
-    color: var(--text-soft);
+[data-theme="light"] .menu-toggle,
+[data-theme="light"] .nav-links a:not(.is-active) {
+    color: #294d68;
 }
 
 [data-theme="light"] .profile-hero .profile-edit-toggle {
