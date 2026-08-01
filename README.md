@@ -20,7 +20,10 @@ uygulamada bir araya getirir.
 - Yapımları favorilere, “Daha Sonra İzle” listesine veya izlenenlere ekleme
 - İsim ve açıklama verilebilen özel listeler oluşturma
 - Filmlere kişisel puan verme ve film listelerini bağlantı ile paylaşma
-- Film ve dizi koleksiyonlarını birlikte özetleyen yerel profil sayfası
+- Film ve dizi koleksiyonlarını birlikte özetleyen gerçek hesap profili
+- Cihazlar arasında eşitlenen koleksiyonlar ve kişisel puanlar
+- Kalıcı liste bağlantıları, listeyi hesaba kopyalama ve paylaşımı kapatma
+- Aylık/yıllık seyir özeti, isteğe bağlı herkese açık profil ve veri dışa aktarma
 - Açık/koyu tema ve masaüstü/mobil uyumlu arayüz
 - Gemini destekli Pusula ile tercihe göre üç yapım önerisi alma
 
@@ -32,7 +35,9 @@ uygulamada bir araya getirir.
 | `series.html` | Dizi ana sayfası, dizi arşivi ve Pusula |
 | `movie-list.html` | Favori, izlenen ve özel film listeleri |
 | `series-list.html` | Favori, izlenen ve özel dizi listeleri |
-| `profile.html` | Yerel hesap işlemleri ve koleksiyon özeti |
+| `profile.html` | Hesap işlemleri, istatistikler ve koleksiyon özeti |
+| `shared-list.html` | Bağlantıyla paylaşılan film/dizi listesi |
+| `public-profile.html` | İsteğe bağlı herkese açık kullanıcı profili |
 
 ## Kullanılan teknolojiler
 

@@ -179,6 +179,8 @@ class LocalAccountManager {
         document.getElementById("changePasswordForm")?.addEventListener("submit", (event) => this.handlePasswordChange(event));
         document.getElementById("deleteAccountBtn")?.addEventListener("click", () => this.handleAccountDelete());
         document.getElementById("profileSharesList")?.addEventListener("click", (event) => { const button = event.target.closest("[data-revoke-share]"); if (button) this.revokeShare(button.dataset.revokeShare); });
+        document.getElementById("profileVisibilityToggle")?.addEventListener("change", (event) => this.updateProfileVisibility(event.target.checked));
+        document.getElementById("exportAccountBtn")?.addEventListener("click", () => this.exportAccountData());
 
         document
             .getElementById(
@@ -819,6 +821,25 @@ class LocalAccountManager {
         catch (error) { window.showToast?.(error.message); }
     }
 
+    async updateProfileVisibility(isPublic) {
+        const toggle=document.getElementById("profileVisibilityToggle"); toggle.disabled=true;
+        try { const {user,url}=await this.api("profile-visibility",{method:"PATCH",body:JSON.stringify({isPublic})}); this.cacheAccount(user); this.renderProfileVisibility(user,url); window.showToast?.(isPublic?"Profilin herkese açıldı.":"Profilin gizlendi."); }
+        catch(error){ toggle.checked=!isPublic; window.showToast?.(error.message); }
+        finally{ toggle.disabled=false; }
+    }
+
+    renderProfileVisibility(account,url=null) {
+        const toggle=document.getElementById("profileVisibilityToggle"); const label=document.getElementById("profileVisibilityLabel"); const link=document.getElementById("publicProfileLink"); if(!toggle||!label||!link)return;
+        toggle.checked=Boolean(account.profilePublic); label.textContent=account.profilePublic?"Açık":"Kapalı"; link.hidden=!account.profilePublic;
+        if(account.profilePublic) link.href=url||`public-profile.html?u=${encodeURIComponent(account.profileSlug)}`;
+    }
+
+    async exportAccountData() {
+        const button=document.getElementById("exportAccountBtn"); button.disabled=true;
+        try { const response=await fetch("/api/auth/export",{credentials:"same-origin"}); const data=await response.json(); if(!response.ok)throw new Error(data.error); const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`seyiratlasi-verilerim-${new Date().toISOString().slice(0,10)}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(link.href),1000); window.showToast?.("Verilerinin kopyası indirildi."); }
+        catch(error){window.showToast?.(error.message);} finally{button.disabled=false;}
+    }
+
     escapeHTML(value) {
         const node = document.createElement("span"); node.textContent = String(value || ""); return node.innerHTML;
     }
@@ -1036,6 +1057,14 @@ class LocalAccountManager {
             Object.keys(
                 library.ratings || {}
             ).length;
+
+        const watchedItems=[...Object.values(library.watched||{}),...Object.values(seriesLibrary.watched||{})]; const now=new Date();
+        const inMonth=watchedItems.filter((item)=>{const date=new Date(item.saved_at);return !Number.isNaN(date.valueOf())&&date.getFullYear()===now.getFullYear()&&date.getMonth()===now.getMonth();}).length;
+        const inYear=watchedItems.filter((item)=>{const date=new Date(item.saved_at);return !Number.isNaN(date.valueOf())&&date.getFullYear()===now.getFullYear();}).length;
+        const unique=new Set([...Object.keys(library.favorites||{}),...Object.keys(library.watchlist||{}),...Object.keys(library.watched||{}),...Object.keys(seriesLibrary.favorites||{}).map(id=>`tv:${id}`),...Object.keys(seriesLibrary.watchlist||{}).map(id=>`tv:${id}`),...Object.keys(seriesLibrary.watched||{}).map(id=>`tv:${id}`)]).size;
+        const ratings=Object.values(library.ratings||{}).map(Number).filter(Number.isFinite); const average=ratings.length?(ratings.reduce((sum,value)=>sum+value,0)/ratings.length).toFixed(1):"—";
+        document.getElementById("monthWatchedCount").textContent=inMonth; document.getElementById("yearWatchedCount").textContent=inYear; document.getElementById("collectionTotalCount").textContent=unique; document.getElementById("averageRating").textContent=average;
+        this.renderProfileVisibility(account);
 
         this.renderRecentMovies(
             library,

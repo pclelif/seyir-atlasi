@@ -315,7 +315,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname.startsWith("/api/auth/")) {
         return json(response, 503, { error: "Hesap sistemi henüz yapılandırılmadı." });
     }
-    if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/")) && authReady) {
+    if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/") || url.pathname.startsWith("/api/profiles/")) && authReady) {
         return handleLibrary(request, response, url);
     }
     if (request.method === "OPTIONS" && url.pathname === "/api/pusula") {

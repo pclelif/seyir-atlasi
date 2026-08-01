@@ -275,6 +275,12 @@
                             <span><strong id="ratingCount">0</strong><small>Puanlama</small></span>
                         </a>
                     </div>
+                    <div class="profile-period-stats" aria-label="Seyir dönemi özeti">
+                        <div><strong id="monthWatchedCount">0</strong><span>Bu ay izlenen</span></div>
+                        <div><strong id="yearWatchedCount">0</strong><span>Bu yıl izlenen</span></div>
+                        <div><strong id="collectionTotalCount">0</strong><span>Toplam koleksiyon</span></div>
+                        <div><strong id="averageRating">—</strong><span>Ortalama puanın</span></div>
+                    </div>
                 </section>
 
                 <section class="profile-recent" aria-labelledby="recentTitle">
@@ -300,6 +306,11 @@
                     </div>
                     <button type="button" class="profile-security-toggle" id="securityToggle">Şifreni Yenile</button>
                 </div>
+                <section class="profile-privacy-setting" aria-labelledby="profilePrivacyTitle">
+                    <div><strong id="profilePrivacyTitle">Herkese açık profil</strong><p>Açarsan görünen adın, avatarın, istatistiklerin ve paylaştığın listeler profil bağlantında görünür.</p><a id="publicProfileLink" href="#" target="_blank" rel="noopener" hidden>Profilimi görüntüle ↗</a></div>
+                    <label class="profile-visibility-switch"><input type="checkbox" id="profileVisibilityToggle"><span aria-hidden="true"></span><b id="profileVisibilityLabel">Kapalı</b></label>
+                </section>
+                <div class="profile-export-setting"><div><strong>Verilerini indir</strong><p>Hesap, koleksiyon, puan ve paylaşımlarının JSON kopyasını al.</p></div><button type="button" id="exportAccountBtn">Verilerimi İndir</button></div>
                 <section class="profile-shares" aria-labelledby="profileSharesTitle">
                     <div class="profile-section-heading"><div><span class="profile-section-kicker">Bağlantıların</span><h2 id="profileSharesTitle">Paylaştığın listeler</h2></div></div>
                     <div id="profileSharesList"><p class="library-empty">Paylaşılan listelerin yükleniyor…</p></div>

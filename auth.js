@@ -41,7 +41,7 @@ function normalizeEmail(value) {
 }
 
 function publicUser(row) {
-    return { id: row.id, name: row.name, email: row.email, avatar: row.avatar, emailVerified: Boolean(row.email_verified_at), createdAt: row.created_at };
+    return { id: row.id, name: row.name, email: row.email, avatar: row.avatar, emailVerified: Boolean(row.email_verified_at), profilePublic: Boolean(row.profile_public), profileSlug: row.profile_slug || null, createdAt: row.created_at };
 }
 
 function tokenHash(token) {
@@ -192,6 +192,9 @@ export async function initializeAuth() {
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
         CREATE INDEX IF NOT EXISTS shared_lists_user_id_idx ON shared_lists(user_id);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_public BOOLEAN NOT NULL DEFAULT FALSE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_slug VARCHAR(60);
+        CREATE UNIQUE INDEX IF NOT EXISTS users_profile_slug_idx ON users(profile_slug) WHERE profile_slug IS NOT NULL;
     `);
     if (process.env.SMTP_HOST) {
         mailer = nodemailer.createTransport({
@@ -223,6 +226,15 @@ function cleanLibrary(value, mediaType) {
 export async function handleLibrary(request, response, url) {
     if (!pool) { reply(response, 503, { error: "Veritabanı hazır değil." }); return true; }
     try {
+        const profileMatch = url.pathname.match(/^\/api\/profiles\/([a-z0-9-]{3,60})$/);
+        if (request.method === "GET" && profileMatch) {
+            const result = await pool.query("SELECT id,name,avatar,profile_slug,created_at FROM users WHERE profile_slug=$1 AND profile_public=TRUE",[profileMatch[1]]);
+            if (!result.rowCount) return reply(response,404,{error:"Profil bulunamadı."}),true;
+            const owner=result.rows[0]; const [libraries,shares]=await Promise.all([pool.query("SELECT media_type,data FROM user_libraries WHERE user_id=$1",[owner.id]),pool.query("SELECT share_id,media_type,title,description,jsonb_array_length(items) AS item_count,updated_at FROM shared_lists WHERE user_id=$1 AND is_public=TRUE ORDER BY updated_at DESC LIMIT 12",[owner.id])]);
+            const byType=Object.fromEntries(libraries.rows.map(row=>[row.media_type,row.data||{}])); const movie=cleanLibrary(byType.movie,'movie'); const tv=cleanLibrary(byType.tv,'tv');
+            const stats={favorites:Object.keys(movie.favorites).length+Object.keys(tv.favorites).length,watchlist:Object.keys(movie.watchlist).length+Object.keys(tv.watchlist).length,watched:Object.keys(movie.watched).length+Object.keys(tv.watched).length,ratings:Object.keys(movie.ratings||{}).length};
+            return reply(response,200,{profile:{name:owner.name,avatar:owner.avatar,memberSince:owner.created_at,stats},shares:shares.rows.map(row=>({...row,url:`${appUrl(request)}/shared-list.html?id=${row.share_id}`}))}),true;
+        }
         const publicMatch = url.pathname.match(/^\/api\/lists\/public\/([A-Za-z0-9_-]{8,24})$/);
         if (request.method === "GET" && publicMatch) {
             const result = await pool.query(`SELECT s.share_id, s.media_type, s.title, s.description, s.items, s.ratings, s.updated_at, u.name AS owner_name, u.avatar AS owner_avatar FROM shared_lists s JOIN users u ON u.id=s.user_id WHERE s.share_id=$1 AND s.is_public=TRUE`, [publicMatch[1]]);
@@ -324,6 +336,22 @@ export async function handleAuth(request, response, url) {
             if (name.length < 2 || name.length > 80 || !allowedAvatar.test(avatar)) return reply(response, 400, { error: "Profil bilgileri geçersiz." }), true;
             const result = await pool.query("UPDATE users SET name=$1, avatar=$2, updated_at=NOW() WHERE id=$3 RETURNING *", [name, avatar, user.id]);
             return reply(response, 200, { user: publicUser(result.rows[0]) }), true;
+        }
+        if (request.method === "PATCH" && url.pathname === "/api/auth/profile-visibility") {
+            const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
+            const data = await body(request); const isPublic = data.isPublic === true;
+            let slug = user.profile_slug;
+            if (isPublic && !slug) {
+                const base = user.name.toLocaleLowerCase("tr-TR").normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42) || "seyir-profili";
+                slug = `${base}-${randomBytes(3).toString("hex")}`;
+            }
+            const result = await pool.query("UPDATE users SET profile_public=$1,profile_slug=$2,updated_at=NOW() WHERE id=$3 RETURNING *",[isPublic,slug,user.id]);
+            return reply(response,200,{user:publicUser(result.rows[0]),url:isPublic?`${appUrl(request)}/public-profile.html?u=${slug}`:null}),true;
+        }
+        if (request.method === "GET" && url.pathname === "/api/auth/export") {
+            const user = await currentUser(request); if (!user) return reply(response,401,{error:"Oturum süresi dolmuş."}),true;
+            const [libraries,shares]=await Promise.all([pool.query("SELECT media_type,data,updated_at FROM user_libraries WHERE user_id=$1",[user.id]),pool.query("SELECT share_id,media_type,title,description,items,ratings,is_public,created_at,updated_at FROM shared_lists WHERE user_id=$1",[user.id])]);
+            return reply(response,200,{exportedAt:new Date().toISOString(),account:publicUser(user),libraries:libraries.rows,sharedLists:shares.rows}),true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/change-password") {
             const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
