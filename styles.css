@@ -2985,7 +2985,7 @@ html:not([data-theme="light"]) .footer-brand img {
 .profile-share-row small { margin-top: 4px; color: var(--text-muted); }
 .profile-share-row > div:last-child { display: flex; gap: 9px; }
 .profile-share-row a, .profile-share-row button { border: 1px solid var(--border-strong); border-radius: 9px; padding: 8px 11px; color: var(--text); background: transparent; font: inherit; text-decoration: none; cursor: pointer; }
-@media (max-width: 700px) { .shared-list-hero { align-items: flex-start; flex-direction: column; } .shared-list-navbar .navbar-inner { padding-right: calc(30px + env(safe-area-inset-right, 0px)); padding-left: calc(18px + env(safe-area-inset-left, 0px)); } .shared-list-navbar .side-menu-brand span { display: none; } }
+@media (max-width: 700px) { .shared-list-hero { align-items: flex-start; flex-direction: column; } .shared-list-navbar .navbar-inner { padding-right: calc(50px + env(safe-area-inset-right, 0px)); padding-left: calc(18px + env(safe-area-inset-left, 0px)); } .shared-list-navbar .side-menu-brand span { display: none; } }
 @media (max-width: 620px) { .profile-share-row { align-items: flex-start; flex-direction: column; } }
 
 .profile-card {
