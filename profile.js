@@ -473,6 +473,11 @@ class LocalAccountManager {
     setBusy(form, busy) {
         form.querySelectorAll("button, input").forEach((element) => { element.disabled = busy; });
         form.setAttribute("aria-busy", String(busy));
+        const submit = form.querySelector('[type="submit"]');
+        if (submit) {
+            if (!submit.dataset.defaultText) submit.dataset.defaultText = submit.textContent;
+            submit.textContent = busy ? "İşleniyor…" : submit.dataset.defaultText;
+        }
     }
 
     async restoreServerSession() {
@@ -533,6 +538,18 @@ class LocalAccountManager {
                 )
             );
 
+        if (name.length < 2) {
+            this.showFeedback("Ad soyad alanına en az 2 karakter yazmalısın.", true);
+            event.currentTarget.elements.name.focus();
+            return;
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            this.showFeedback("Geçerli bir e-posta adresi yazmalısın.", true);
+            event.currentTarget.elements.email.focus();
+            return;
+        }
+
         if (
             password !==
             passwordConfirm
@@ -558,7 +575,6 @@ class LocalAccountManager {
             );
 
         if (
-            name.length < 2 ||
             !Object.values(
                 passwordRules
             ).every(Boolean)
@@ -571,6 +587,7 @@ class LocalAccountManager {
             return;
         }
 
+        this.showFeedback("Hesabın oluşturuluyor, lütfen bekle…");
         this.setBusy(event.currentTarget, true);
         try {
             const result = await this.api("register", { method: "POST", body: JSON.stringify({ name, email, password }) });
