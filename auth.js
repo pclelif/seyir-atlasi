@@ -180,6 +180,17 @@ function passwordResetEmail(request, user, link) {
     };
 }
 
+// Saf, dış servise bağlanmayan yardımcılar otomatik testlerde kullanılır.
+export const authTestHelpers = Object.freeze({
+    normalizeEmail,
+    validPassword,
+    escapeEmailHtml,
+    brandedEmail,
+    verificationEmail,
+    passwordResetEmail,
+    tokenHash
+});
+
 async function createPurposeToken(userId, purpose) {
     const token = randomBytes(32).toString("base64url");
     await pool.query("DELETE FROM auth_tokens WHERE user_id = $1 AND purpose = $2", [userId, purpose]);

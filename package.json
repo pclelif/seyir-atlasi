@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check movies.js && node --check series.js && node --check profile.js && node --check navigation.js",
+    "check": "node --check server.js && node --check auth.js && node --check movies.js && node --check series.js && node --check profile.js && node --check navigation.js && node --check public-profile.js && node --check shared-list.js",
     "test": "node --test"
   },
   "dependencies": {
