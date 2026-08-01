@@ -1420,9 +1420,15 @@ html:not([data-theme="light"]) .footer-brand img {
 }
 
 [data-theme="light"] .recommend-trigger {
-    color: #17213b;
-    border-color: #d9a83d;
-    background: linear-gradient(135deg, #f8dda0, #e9b84d);
+    color: #102a43;
+    border-color: #c99a32;
+    background: linear-gradient(135deg, #f3d58a, #d9a63b);
+}
+
+[data-theme="light"] .recommend-trigger:hover {
+    color: #102a43;
+    border-color: #b98927;
+    background: linear-gradient(135deg, #f7dda0, #e2b34d);
 }
 
 [data-theme="light"] .about-content {
