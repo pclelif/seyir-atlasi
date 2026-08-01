@@ -138,7 +138,7 @@ function brandedEmail({ baseUrl, preview, eyebrow, title, greeting, message, but
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;">
 <tr><td aria-hidden="true" style="padding:0 4px 15px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="17%" style="color:#fff;font-size:8px;line-height:1;text-align:center;text-shadow:0 0 7px rgba(255,255,255,.8);">•</td><td width="17%" style="color:#8fafff;font-size:5px;line-height:1;text-align:center;text-shadow:0 0 7px rgba(143,175,255,.8);">•</td><td width="16%" style="color:#c7d2fe;font-size:9px;line-height:1;text-align:center;text-shadow:0 0 8px rgba(199,210,254,.75);">•</td><td width="17%" style="color:#fff;font-size:4px;line-height:1;text-align:center;">•</td><td width="16%" style="color:#8fafff;font-size:7px;line-height:1;text-align:center;text-shadow:0 0 7px rgba(143,175,255,.7);">•</td><td width="17%" style="color:#fff;font-size:5px;line-height:1;text-align:center;">•</td></tr></table></td></tr>
 <tr><td style="padding:0 8px 22px;text-align:center;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"><tr><td width="34" valign="middle" style="padding-bottom:4px;"><a href="${safeBaseUrl}" style="display:block;text-decoration:none;"><img src="${safeBaseUrl}/images/logo-email.svg" width="34" height="34" alt="" style="display:block;width:34px;height:34px;border:0;"></a></td><td valign="middle" style="padding-left:3px;color:#cbd5e1;font-size:21px;font-weight:800;letter-spacing:-.4px;text-shadow:0 0 8px rgba(199,210,254,.4);"><a href="${safeBaseUrl}" style="color:#cbd5e1;text-decoration:none;">SeyirAtlası</a></td></tr></table>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"><tr><td width="34" valign="middle" style="padding-bottom:4px;"><a href="${safeBaseUrl}" style="display:block;text-decoration:none;"><img src="${safeBaseUrl}/images/logo-email.svg" width="34" height="34" alt="" style="display:block;width:34px;height:34px;border:0;"></a></td><td valign="middle" style="padding-left:3px;color:#fff;font-size:21px;font-weight:800;letter-spacing:-.4px;text-shadow:0 0 8px rgba(199,210,254,.4);"><a href="${safeBaseUrl}" style="color:#fff;text-decoration:none;">SeyirAtlası</a></td></tr></table>
 </td></tr>
 <tr><td bgcolor="#15172e" style="overflow:hidden;border:1px solid rgba(206,224,228,.16);border-radius:24px;background-color:#15172e!important;background-image:radial-gradient(circle at 13% 20%,rgba(242,152,171,.3),transparent 30%),radial-gradient(circle at 83% 16%,rgba(78,203,190,.22),transparent 31%),radial-gradient(circle at 70% 108%,rgba(230,185,82,.2),transparent 35%),linear-gradient(128deg,#321c3d 0%,#172c3c 55%,#15172e 100%);box-shadow:0 24px 70px rgba(0,0,0,.35);">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -375,8 +375,12 @@ export async function handleAuth(request, response, url) {
             return reply(response, 201, { message: "Hesabın oluşturuldu. E-postana gönderdiğimiz bağlantıyla hesabını doğrula.", emailSent: true }), true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/login") {
-            const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email = $1", [normalizeEmail(data.email)]); const user = result.rows[0];
+            const data = await body(request); const result = await pool.query("SELECT * FROM users WHERE email = $1", [normalizeEmail(data.email)]); let user = result.rows[0];
             if (!user || !(await passwordMatches(String(data.password || ""), user.password_hash))) return reply(response, 401, { error: "E-posta veya şifre hatalı." }), true;
+            if (!user.email_verified_at) {
+                const repaired = await pool.query("UPDATE users SET email_verified_at=NOW(),updated_at=NOW() WHERE id=$1 AND EXISTS(SELECT 1 FROM auth_tokens WHERE user_id=$1 AND purpose='verify' AND used_at IS NOT NULL) RETURNING *", [user.id]);
+                if (repaired.rowCount) user = repaired.rows[0];
+            }
             if (!user.email_verified_at) return reply(response, 403, { error: "Giriş yapmadan önce e-posta adresini doğrulamalısın.", code: "EMAIL_NOT_VERIFIED" }, { "Set-Cookie": cookieHeader("", request, 0) }), true;
             const token = randomBytes(32).toString("base64url"); const ttl = data.remember ? TOKEN_TTL.session : 24 * 60 * 60 * 1000;
             await pool.query("INSERT INTO sessions(user_id, token_hash, expires_at) VALUES($1,$2,$3)", [user.id, tokenHash(token), new Date(Date.now() + ttl)]);
@@ -437,9 +441,17 @@ export async function handleAuth(request, response, url) {
             return reply(response, 200, { message: "Adres kayıtlıysa doğrulama e-postası gönderildi." }), true;
         }
         if (request.method === "GET" && url.pathname === "/api/auth/verify") {
-            const result = await pool.query("UPDATE auth_tokens SET used_at=NOW() WHERE token_hash=$1 AND purpose='verify' AND used_at IS NULL AND expires_at>NOW() RETURNING user_id", [tokenHash(url.searchParams.get("token") || "")]);
-            if (result.rowCount) await pool.query("UPDATE users SET email_verified_at=COALESCE(email_verified_at,NOW()), updated_at=NOW() WHERE id=$1", [result.rows[0].user_id]);
-            response.writeHead(303, { Location: `/profile.html?verified=${result.rowCount ? "1" : "0"}` }); response.end(); return true;
+            const client = await pool.connect(); let verified = false;
+            try {
+                await client.query("BEGIN");
+                const result = await client.query("SELECT user_id FROM auth_tokens WHERE token_hash=$1 AND purpose='verify' AND expires_at>NOW() FOR UPDATE", [tokenHash(url.searchParams.get("token") || "")]);
+                if (result.rowCount) {
+                    await client.query("UPDATE users SET email_verified_at=COALESCE(email_verified_at,NOW()),updated_at=NOW() WHERE id=$1", [result.rows[0].user_id]);
+                    await client.query("UPDATE auth_tokens SET used_at=COALESCE(used_at,NOW()) WHERE token_hash=$1", [tokenHash(url.searchParams.get("token") || "")]);
+                    await client.query("COMMIT"); verified = true;
+                } else await client.query("ROLLBACK");
+            } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+            response.writeHead(303, { Location: `/profile.html?verified=${verified ? "1" : "0"}` }); response.end(); return true;
         }
         if (request.method === "POST" && url.pathname === "/api/auth/forgot-password") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
