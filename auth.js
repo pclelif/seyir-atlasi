@@ -333,9 +333,10 @@ export async function handleAuth(request, response, url) {
         }
         if (request.method === "PATCH" && url.pathname === "/api/auth/profile") {
             const user = await currentUser(request); if (!user) return reply(response, 401, { error: "Oturum süresi dolmuş." }), true;
-            const data = await body(request); const name = String(data.name || "").trim().replace(/\s+/g, " "); const avatar = String(data.avatar || "");
-            if (name.length < 2 || name.length > 80 || !allowedAvatar.test(avatar)) return reply(response, 400, { error: "Profil bilgileri geçersiz." }), true;
-            const allowedGenres=new Set(["Aksiyon","Macera","Animasyon","Komedi","Suç","Belgesel","Dram","Fantastik","Tarih","Korku","Romantik","Bilim Kurgu","Gerilim","Savaş","Vahşi Batı"]); const genres=Array.isArray(data.preferences?.genres)?data.preferences.genres.filter(item=>allowedGenres.has(item)).slice(0,3):[]; const preferences={genres,favoriteMovie:String(data.preferences?.favoriteMovie||"").trim().slice(0,80),favoriteSeries:String(data.preferences?.favoriteSeries||"").trim().slice(0,80),favoriteCharacter:String(data.preferences?.favoriteCharacter||"").trim().slice(0,80)};
+            const data = await body(request, 500_000); const name = String(data.name || "").trim().replace(/\s+/g, " "); const avatar = String(data.avatar || "");
+            const customAvatar=String(data.preferences?.customAvatar||""); const validCustomAvatar=/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(customAvatar)&&customAvatar.length<=350_000;
+            if (name.length < 2 || name.length > 80 || (!allowedAvatar.test(avatar) && !(avatar === "custom" && validCustomAvatar))) return reply(response, 400, { error: "Profil bilgileri geçersiz." }), true;
+            const allowedGenres=new Set(["Aksiyon","Macera","Animasyon","Komedi","Suç","Belgesel","Dram","Fantastik","Tarih","Korku","Romantik","Bilim Kurgu","Gerilim","Savaş","Vahşi Batı"]); const genres=Array.isArray(data.preferences?.genres)?data.preferences.genres.filter(item=>allowedGenres.has(item)).slice(0,3):[]; const preferences={genres,favoriteMovie:String(data.preferences?.favoriteMovie||"").trim().slice(0,80),favoriteSeries:String(data.preferences?.favoriteSeries||"").trim().slice(0,80),favoriteCharacter:String(data.preferences?.favoriteCharacter||"").trim().slice(0,80),customAvatar:avatar==="custom"?customAvatar:""};
             const result = await pool.query("UPDATE users SET name=$1, avatar=$2, profile_preferences=$3, updated_at=NOW() WHERE id=$4 RETURNING *", [name, avatar, preferences, user.id]);
             return reply(response, 200, { user: publicUser(result.rows[0]) }), true;
         }

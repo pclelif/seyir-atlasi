@@ -182,6 +182,7 @@ class LocalAccountManager {
         document.getElementById("profileVisibilityToggle")?.addEventListener("change", (event) => this.updateProfileVisibility(event.target.checked));
         document.getElementById("exportAccountBtn")?.addEventListener("click", () => this.exportAccountData());
         document.querySelectorAll('[name="genres"]').forEach((input)=>input.addEventListener("change",()=>{const checked=document.querySelectorAll('[name="genres"]:checked');if(checked.length>3){input.checked=false;window.showToast?.("En fazla 3 tür seçebilirsin.");}}));
+        document.getElementById("customAvatarFile")?.addEventListener("change", (event) => this.handleCustomAvatar(event));
 
         document
             .getElementById(
@@ -858,6 +859,9 @@ class LocalAccountManager {
     }
 
     getAvatarPath(account) {
+        if (account?.avatar === "custom" && /^data:image\/(?:jpeg|png|webp);base64,/.test(account?.preferences?.customAvatar || "")) {
+            return account.preferences.customAvatar;
+        }
         const avatar =
             String(
                 account?.avatar || ""
@@ -909,6 +913,8 @@ class LocalAccountManager {
             }
 
             const preferences=account.preferences||{};
+            this.customAvatarData=preferences.customAvatar||"";
+            const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=!this.customAvatarData;
             form.querySelectorAll('[name="genres"]').forEach((input)=>{input.checked=(preferences.genres||[]).includes(input.value);});
             form.elements.favoriteMovie.value=preferences.favoriteMovie||"";
             form.elements.favoriteSeries.value=preferences.favoriteSeries||"";
@@ -918,6 +924,15 @@ class LocalAccountManager {
                 "profileNameInput"
             ).focus();
         }
+    }
+
+    async handleCustomAvatar(event) {
+        const file=event.target.files?.[0]; if(!file)return;
+        if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>8_000_000){window.showToast?.("JPG, PNG veya WebP biçiminde en fazla 8 MB fotoğraf seç.");event.target.value="";return;}
+        try {
+            const bitmap=await createImageBitmap(file); const size=Math.min(bitmap.width,bitmap.height); const canvas=document.createElement("canvas"); canvas.width=256; canvas.height=256; const context=canvas.getContext("2d"); context.drawImage(bitmap,(bitmap.width-size)/2,(bitmap.height-size)/2,size,size,0,0,256,256); bitmap.close?.();
+            this.customAvatarData=canvas.toDataURL("image/webp",.82); const preview=document.getElementById("customAvatarPreview"); preview.src=this.customAvatarData; preview.hidden=false; document.getElementById("customAvatarChoice").checked=true; window.showToast?.("Fotoğrafın hazır; kaydetmeyi unutma.");
+        } catch { window.showToast?.("Fotoğraf işlenemedi."); }
     }
 
     async handleProfileUpdate(event) {
@@ -944,7 +959,7 @@ class LocalAccountManager {
         }
 
         const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
-        const preferences={genres:formData.getAll("genres").slice(0,3),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||"")};
+        const preferences={genres:formData.getAll("genres").slice(0,3),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||""),customAvatar:formData.get("avatar")==="custom"?this.customAvatarData||"":""};
         this.setBusy(form, true);
         try {
             const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar, preferences }) });
