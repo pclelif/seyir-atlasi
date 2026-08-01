@@ -6247,7 +6247,7 @@ select:focus-visible {
     width: fit-content;
     align-items: center;
     gap: 5px;
-    margin: 0 0 8px;
+    margin: 7px 0 8px;
     padding: 4px 9px;
     border: 1px solid var(--pusula-gold-border, var(--border-strong));
     border-radius: 999px;
@@ -6271,7 +6271,7 @@ select:focus-visible {
 
 .pusula-heading .about-kicker {
     display: block;
-    margin: 8px 0 3px;
+    margin: 0;
     font-size: 0.67rem;
     letter-spacing: 0.11em;
 }
