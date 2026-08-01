@@ -3163,6 +3163,13 @@ html:not([data-theme="light"]) .footer-brand img {
     text-transform: uppercase;
 }
 
+.avatar-group-label small {
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+}
+
 .avatar-primary-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
