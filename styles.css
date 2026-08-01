@@ -3969,12 +3969,13 @@ html:not([data-theme="light"]) .footer-brand img {
 
 .footer-identity {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .footer-identity .footer-tagline {
-    margin: 0;
+    margin: 0 0 0 12px;
 }
 
 .footer-inner > .footer-contact {
@@ -5730,7 +5731,6 @@ select:focus-visible {
     }
 
     .footer-identity {
-        flex-direction: column;
         gap: 4px;
     }
 
