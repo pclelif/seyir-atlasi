@@ -193,6 +193,13 @@ export async function handleAuth(request, response, url) {
     if (!["GET", "HEAD"].includes(request.method) && rateLimited(request)) { reply(response, 429, { error: "Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar dene." }); return true; }
 
     try {
+        if (request.method === "GET" && url.pathname === "/api/auth/status") {
+            return reply(response, 200, {
+                database: "ready",
+                email: process.env.BREVO_API_KEY ? "brevo" : mailer ? "smtp" : "missing",
+                sender: process.env.MAIL_FROM ? "configured" : "missing"
+            }), true;
+        }
         if (request.method === "POST" && url.pathname === "/api/auth/register") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const name = String(data.name || "").trim().replace(/\s+/g, " "); const email = normalizeEmail(data.email); const password = String(data.password || "");
