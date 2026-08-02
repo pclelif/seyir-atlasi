@@ -58,6 +58,13 @@ class MovieExplorer {
 
         this.omdbMovieCache = new Map();
 
+        // Bu yapım site kataloğunda ve kullanıcı listelerinde gösterilmemeli.
+        this.BLOCKED_MOVIE_TITLES = new Set([
+            "seytanin agzi",
+            "the devil's mouth",
+            "the devils mouth"
+        ]);
+
         this.USER_LIBRARY_STORAGE_KEY =
             this.getUserLibraryStorageKey();
 
@@ -94,6 +101,9 @@ class MovieExplorer {
         this.updatePusulaTimeCopy();
         this.setupEventListeners();
         await this.syncLibraryFromServer();
+        if (this.removeBlockedMoviesFromLibrary() && !this.isSharedView) {
+            this.saveUserLibrary();
+        }
         this.renderUserLibrary();
         this.applyTheme(
             this.currentTheme
@@ -1296,10 +1306,11 @@ class MovieExplorer {
             return;
         }
 
-        if (
-            !Array.isArray(movies) ||
-            movies.length === 0
-        ) {
+        const visibleMovies = Array.isArray(movies)
+            ? movies.filter((movie) => !this.isBlockedMovie(movie))
+            : [];
+
+        if (visibleMovies.length === 0) {
             carousel.innerHTML = `
                 <div class="no-results">
                     <h2>
@@ -1316,7 +1327,7 @@ class MovieExplorer {
         }
 
         carousel.innerHTML =
-            movies
+            visibleMovies
                 .map((movie, index) => {
                     return this.createTrendingCard(
                         movie,
@@ -2196,9 +2207,9 @@ class MovieExplorer {
                             containerId === "moviesGrid" &&
                             Boolean(this.currentQuery);
 
-                        return isArchiveSearch
+                        return !this.isBlockedMovie(movie) && (isArchiveSearch
                             ? this.hasStandardSearchResult(movie)
-                            : this.hasValidTurkishTitle(movie);
+                            : this.hasValidTurkishTitle(movie));
                     }
                 )
                 : [];
@@ -2341,6 +2352,49 @@ class MovieExplorer {
             .join("");
     }
 
+
+    normalizeMovieTitle(title) {
+        return String(title || "")
+            .toLocaleLowerCase("tr-TR")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ı/g, "i")
+            .replace(/[^a-z0-9' ]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    isBlockedMovie(movie) {
+        return [movie?.title, movie?.original_title, movie?.name]
+            .some((title) => this.BLOCKED_MOVIE_TITLES.has(this.normalizeMovieTitle(title)));
+    }
+
+    removeBlockedMoviesFromLibrary() {
+        if (!this.userLibrary || typeof this.userLibrary !== "object") return false;
+
+        let changed = false;
+        const removedIds = new Set();
+        const cleanCollection = (collection) => {
+            Object.entries(collection || {}).forEach(([id, movie]) => {
+                if (this.isBlockedMovie(movie)) {
+                    delete collection[id];
+                    removedIds.add(String(id));
+                    changed = true;
+                }
+            });
+        };
+
+        ["favorites", "watchlist", "watched"].forEach((name) => cleanCollection(this.userLibrary[name]));
+        Object.values(this.userLibrary.customLists || {}).forEach((list) => cleanCollection(list?.movies));
+        removedIds.forEach((id) => {
+            if (Object.prototype.hasOwnProperty.call(this.userLibrary.ratings || {}, id)) {
+                delete this.userLibrary.ratings[id];
+                changed = true;
+            }
+        });
+
+        return changed;
+    }
 
     hasValidTurkishTitle(movie) {
         const hasTitle =
