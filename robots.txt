@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://seyir-atlasi.onrender.com/sitemap.xml
