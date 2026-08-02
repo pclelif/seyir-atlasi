@@ -905,47 +905,33 @@ class MovieExplorer {
     }
 
 
-    async fetchOmdbData(imdbId) {
-        if (!imdbId) {
+    async fetchOmdbData(imdbId, movie = null) {
+        const title = movie?.original_title || movie?.title;
+
+        if (!imdbId && !title) {
             return null;
         }
 
         try {
-            const url =
-                new URL(
-                    `${this.API_BASE_URL}/omdb`,
-                    window.location.href
-                );
-
-            url.searchParams.set(
-                "i",
-                imdbId
-            );
-
-            url.searchParams.set(
-                "type",
-                "movie"
-            );
-
-            const response =
-                await fetch(
-                    url.toString()
-                );
-
-            if (!response.ok) {
-                return null;
+            const queries = [];
+            if (imdbId) queries.push({ i: imdbId });
+            if (title) {
+                const year = this.getReleaseYear(movie?.release_date);
+                queries.push({ t: title, ...(year && year !== "—" ? { y: year } : {}) });
             }
 
-            const data =
-                await response.json();
-
-            if (
-                data.Response === "False"
-            ) {
-                return null;
+            for (const query of queries) {
+                const url = new URL(`${this.API_BASE_URL}/omdb`, window.location.href);
+                Object.entries({ ...query, type: "movie" }).forEach(([key, value]) => {
+                    url.searchParams.set(key, value);
+                });
+                const response = await fetch(url.toString());
+                if (!response.ok) continue;
+                const data = await response.json();
+                if (data.Response !== "False") return data;
             }
 
-            return data;
+            return null;
         } catch (error) {
             console.error(
                 "OMDb verisi çekilirken hata oluştu:",
@@ -3024,10 +3010,11 @@ class MovieExplorer {
                     normalizedMovieId
                 ) || null;
 
-            if (!omdbData && imdbId) {
+            if (!omdbData) {
                 omdbData =
                     await this.fetchOmdbData(
-                        imdbId
+                        imdbId,
+                        movieDetails
                     );
 
                 if (omdbData) {
@@ -6139,15 +6126,14 @@ class MovieExplorer {
             );
         }
 
-        if (totalWins && !oscarWins) {
+        if (totalWins) {
             parts.push(
                 `${totalWins} ödül`
             );
         }
 
         if (
-            totalNominations &&
-            !oscarNominations
+            totalNominations
         ) {
             parts.push(
                 `${totalNominations} adaylık`
