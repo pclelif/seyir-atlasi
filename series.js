@@ -854,6 +854,8 @@ class SeriesExplorer {
         this.pusulaRequestController?.abort();
         this.pusulaRequestController = null;
         this.pusulaLastTitles = [];
+        document.querySelector("#seriesRecommendModal .recommend-dialog")
+            ?.classList.remove("has-results");
         document.getElementById("seriesRecommendForm")?.reset();
         document.querySelectorAll(
             "#seriesPusulaQuestions [data-pusula-group] .is-selected"
@@ -1001,6 +1003,8 @@ class SeriesExplorer {
         const chat = document.getElementById("seriesPusulaChat");
         const form = document.getElementById("seriesRecommendForm");
         if (!chat || !form) return;
+        document.querySelector("#seriesRecommendModal .recommend-dialog")
+            ?.classList.add("has-results");
         const summary = this.describePusulaSelections();
         const requestMessage = message ||
             (summary
