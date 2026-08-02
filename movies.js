@@ -135,7 +135,7 @@ class MovieExplorer {
         if (hour >= 5 && hour < 11) {
             daypart = "bu sabah";
         } else if (hour >= 11 && hour < 17) {
-            daypart = "bu gece";
+            daypart = "bu öğlen";
         } else if (hour >= 17 && hour < 22) {
             daypart = "bu akşam";
         }
