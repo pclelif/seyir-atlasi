@@ -3014,7 +3014,19 @@ html:not([data-theme="light"]) .footer-brand img {
 .shared-list-hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; }
 .shared-list-hero small { display: block; margin-top: 12px; color: var(--primary-light); font-weight: 800; }
 .shared-list-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.shared-list-actions button, .shared-home-link { border: 1px solid var(--border-strong); border-radius: 11px; padding: 11px 15px; color: var(--text); background: var(--primary-soft); font: inherit; font-weight: 750; text-decoration: none; cursor: pointer; }
+.shared-list-actions button, .shared-home-link {
+    border: 1px solid var(--border-strong);
+    border-radius: 11px;
+    padding: 11px 15px;
+    color: var(--text);
+    background: var(--primary-soft);
+    font: inherit;
+    font-weight: 750;
+    font-size: 0.9rem;
+    line-height: 1.1;
+    text-decoration: none;
+    cursor: pointer;
+}
 .shared-list-card,
 .shared-list-card:visited { color: var(--text); text-decoration: none; }
 .shared-list-card .movie-info h3 { color: var(--text); }
