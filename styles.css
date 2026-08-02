@@ -6152,8 +6152,8 @@ select:focus-visible {
 
     .recommend-dialog {
         width: calc(100% - 8px);
-        max-height: 84vh;
-        max-height: 84dvh;
+        max-height: 92vh;
+        max-height: 92dvh;
         padding: 18px 14px 16px;
         border-radius: 18px;
     }
@@ -10017,8 +10017,8 @@ html:not([data-theme="light"]) .side-menu-brand img {
 
     .recommend-dialog {
         width: calc(100% - 8px);
-        max-height: calc(100vh - 24px);
-        max-height: calc(100dvh - 24px);
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
         padding: 18px 14px 16px;
         overflow-x: hidden;
         overflow-y: auto;
