@@ -102,6 +102,11 @@ class MovieExplorer {
 
         await this.loadGenres();
 
+        this.renderUserLibrary();
+        this.enrichStoredMovies().then(() => {
+            this.renderUserLibrary();
+        });
+
         await Promise.all([
             this.loadTrendingMovies(),
             this.loadRandomMovies()
@@ -4305,9 +4310,74 @@ class MovieExplorer {
                 movie.original_title ||
                 "İsimsiz Film",
             original_language: "tr",
+            genre_ids:
+                Array.isArray(movie.genre_ids)
+                    ? movie.genre_ids.map(Number).filter(Number.isFinite)
+                    : Array.isArray(movie.genres)
+                        ? movie.genres.map((genre) => Number(genre.id)).filter(Number.isFinite)
+                        : [],
+            overview:
+                String(movie.overview || "").trim(),
             saved_at:
                 new Date().toISOString()
         };
+    }
+
+    async enrichStoredMovies() {
+        if (!document.getElementById("libraryContent")) {
+            return;
+        }
+
+        const collections = [
+            this.userLibrary.favorites,
+            this.userLibrary.watchlist,
+            this.userLibrary.watched,
+            ...Object.values(this.userLibrary.customLists || {})
+                .map((list) => list.movies)
+        ].filter(Boolean);
+        const missingIds = [...new Set(
+            collections.flatMap((collection) => Object.values(collection))
+                .filter((movie) =>
+                    movie?.id &&
+                    (!Array.isArray(movie.genre_ids) || !movie.genre_ids.length || !String(movie.overview || "").trim())
+                )
+                .map((movie) => String(movie.id))
+        )];
+
+        if (!missingIds.length) {
+            return;
+        }
+
+        let changed = false;
+        for (let index = 0; index < missingIds.length; index += 6) {
+            const results = await Promise.allSettled(
+                missingIds.slice(index, index + 6).map(async (movieId) => {
+                    const localized = await this.fetchData(`/movie/${encodeURIComponent(movieId)}`, { language: "tr-TR" });
+                    return this.fillMissingMovieDetails(movieId, localized);
+                })
+            );
+
+            results.forEach((result) => {
+                if (result.status !== "fulfilled") return;
+                const details = result.value;
+                const movieId = String(details.id);
+                const genreIds = Array.isArray(details.genres)
+                    ? details.genres.map((genre) => Number(genre.id)).filter(Number.isFinite)
+                    : [];
+
+                collections.forEach((collection) => {
+                    const stored = collection[movieId];
+                    if (!stored) return;
+                    stored.genre_ids = genreIds;
+                    stored.overview = String(details.overview || "").trim();
+                    changed = true;
+                });
+            });
+        }
+
+        if (changed && !this.isSharedView) {
+            this.saveUserLibrary();
+        }
     }
 
 
