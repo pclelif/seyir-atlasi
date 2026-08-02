@@ -6132,6 +6132,7 @@ class MovieExplorer {
         this.pusulaRequestController?.abort();
         this.pusulaRequestController = null;
         this.pusulaLastTitles = [];
+        document.querySelector(".recommend-dialog")?.classList.remove("has-results");
 
         const form = document.getElementById("recommendForm");
         form?.reset();
@@ -6312,6 +6313,8 @@ class MovieExplorer {
         const chat = document.getElementById("pusulaChat");
         const form = document.getElementById("recommendForm");
         if (!chat || !form) return;
+
+        document.querySelector(".recommend-dialog")?.classList.add("has-results");
 
         const selectedSummary = this.describePusulaRequest("", preferences);
         const requestMessage = message ||
