@@ -58,6 +58,13 @@ class MovieExplorer {
 
         this.omdbMovieCache = new Map();
 
+        this.REMOVED_MIRACULOUS_TITLES = new Set([
+            "mucize ugur bocegi ile kara kedi",
+            "mucize ugur bocegi ile kara kedi film",
+            "miraculous ladybug cat noir the movie",
+            "ladybug cat noir the movie"
+        ]);
+
         this.USER_LIBRARY_STORAGE_KEY =
             this.getUserLibraryStorageKey();
 
@@ -94,6 +101,7 @@ class MovieExplorer {
         this.updatePusulaTimeCopy();
         this.setupEventListeners();
         await this.syncLibraryFromServer();
+        if (this.removeMiraculousFromLibrary()) this.saveUserLibrary();
         this.renderUserLibrary();
         this.applyTheme(
             this.currentTheme
@@ -1296,10 +1304,11 @@ class MovieExplorer {
             return;
         }
 
-        if (
-            !Array.isArray(movies) ||
-            movies.length === 0
-        ) {
+        const visibleMovies = Array.isArray(movies)
+            ? movies.filter((movie) => !this.isRemovedMiraculous(movie))
+            : [];
+
+        if (visibleMovies.length === 0) {
             carousel.innerHTML = `
                 <div class="no-results">
                     <h2>
@@ -1316,7 +1325,7 @@ class MovieExplorer {
         }
 
         carousel.innerHTML =
-            movies
+            visibleMovies
                 .map((movie, index) => {
                     return this.createTrendingCard(
                         movie,
@@ -2196,9 +2205,9 @@ class MovieExplorer {
                             containerId === "moviesGrid" &&
                             Boolean(this.currentQuery);
 
-                        return isArchiveSearch
+                        return !this.isRemovedMiraculous(movie) && (isArchiveSearch
                             ? this.hasStandardSearchResult(movie)
-                            : this.hasValidTurkishTitle(movie);
+                            : this.hasValidTurkishTitle(movie));
                     }
                 )
                 : [];
@@ -2341,6 +2350,35 @@ class MovieExplorer {
             .join("");
     }
 
+
+    normalizeRemovedTitle(title) {
+        return String(title || "")
+            .toLocaleLowerCase("tr-TR")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ı/g, "i")
+            .replace(/[^a-z0-9 ]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    isRemovedMiraculous(item) {
+        return [item?.title, item?.original_title, item?.name, item?.original_name]
+            .some((title) => this.REMOVED_MIRACULOUS_TITLES.has(this.normalizeRemovedTitle(title)));
+    }
+
+    removeMiraculousFromLibrary() {
+        let changed = false;
+        const clean = (collection) => Object.entries(collection || {}).forEach(([id, item]) => {
+            if (!this.isRemovedMiraculous(item)) return;
+            delete collection[id];
+            delete this.userLibrary.ratings?.[id];
+            changed = true;
+        });
+        ["favorites", "watchlist", "watched"].forEach((name) => clean(this.userLibrary[name]));
+        Object.values(this.userLibrary.customLists || {}).forEach((list) => clean(list?.movies));
+        return changed;
+    }
 
     hasValidTurkishTitle(movie) {
         const hasTitle =

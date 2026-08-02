@@ -19,6 +19,11 @@ class SeriesExplorer {
         this.controller = null;
         this.cache = new Map();
         this.imdbCache = new Map();
+        this.REMOVED_MIRACULOUS_TITLES = new Set([
+            "mucize ugur bocegi ile kara kedi",
+            "miraculous tales of ladybug cat noir",
+            "miraculous ladybug cat noir"
+        ]);
         this.activeSeriesId = null;
         this.lastFocused = null;
         this.themeKey = "seyirAtlasiTheme";
@@ -38,6 +43,7 @@ class SeriesExplorer {
         this.setupEvents();
         this.setupYears();
         await this.syncLibraryFromServer();
+        if (this.removeMiraculousFromLibrary()) this.saveLibrary();
         this.renderLibrary();
         await this.loadGenres();
         this.renderLibrary();
@@ -473,7 +479,7 @@ class SeriesExplorer {
         const name = String(item?.name || "").trim();
         const originalName = String(item?.original_name || "").trim();
         return Boolean(
-            name &&
+            name && !this.isRemovedMiraculous(item) &&
             (
                 item.original_language === "tr" ||
                 (originalName && name !== originalName)
@@ -1156,6 +1162,35 @@ class SeriesExplorer {
             watched: saved.watched || {},
             customLists: saved.customLists || {}
         };
+    }
+
+    normalizeRemovedTitle(title) {
+        return String(title || "")
+            .toLocaleLowerCase("tr-TR")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ı/g, "i")
+            .replace(/[^a-z0-9 ]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    isRemovedMiraculous(item) {
+        return [item?.name, item?.original_name, item?.title, item?.original_title]
+            .some((title) => this.REMOVED_MIRACULOUS_TITLES.has(this.normalizeRemovedTitle(title)));
+    }
+
+    removeMiraculousFromLibrary() {
+        let changed = false;
+        const clean = (collection) => Object.entries(collection || {}).forEach(([id, item]) => {
+            if (!this.isRemovedMiraculous(item)) return;
+            delete collection[id];
+            changed = true;
+        });
+        ["favorites", "watchlist", "watched"].forEach((name) => clean(this.library[name]));
+        Object.values(this.library.customLists || {}).forEach((list) => clean(list?.series));
+        if (changed) this.favorites = new Set(Object.keys(this.library.favorites));
+        return changed;
     }
 
     saveLibrary() {
