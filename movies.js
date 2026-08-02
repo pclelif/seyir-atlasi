@@ -6042,9 +6042,12 @@ class MovieExplorer {
 
 
     createAwardsFactHTML(omdbData) {
+        const awardsText =
+            String(omdbData?.Awards || "").trim();
+
         if (
-            !omdbData?.Awards ||
-            omdbData.Awards === "N/A"
+            !awardsText ||
+            /^N\/A$/i.test(awardsText)
         ) {
             return `
                 <div class="movie-modal-fact movie-modal-fact-highlight">
@@ -6065,7 +6068,7 @@ class MovieExplorer {
          */
         const awardText =
             this.formatAwards(
-                omdbData.Awards
+                awardsText
             );
 
         return `
@@ -6083,7 +6086,7 @@ class MovieExplorer {
 
     formatAwards(awards) {
         const awardText =
-            String(awards);
+            String(awards).trim();
 
         const getCount = (pattern) => {
             const match =
@@ -6102,6 +6105,8 @@ class MovieExplorer {
         const oscarNominations =
             getCount(
                 /nominated\s+for\s+(\d+)\s+oscars?/i
+            ) || getCount(
+                /(\d+)\s+Oscar nominations?/i
             );
 
         const totalWins =
@@ -6112,6 +6117,8 @@ class MovieExplorer {
         const totalNominations =
             getCount(
                 /(\d+)\s+nominations?/i
+            ) || getCount(
+                /(\d+)\s+nomination\b/i
             );
 
         const parts = [];
@@ -6164,8 +6171,7 @@ class MovieExplorer {
             .replace(
                 /[.!?,\s]+$/,
                 ""
-            )
-            + "!";
+            ) + "!";
     }
 
 
