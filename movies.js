@@ -56,7 +56,11 @@ class MovieExplorer {
 
         this.imdbRatingCache = new Map();
 
-        this.omdbMovieCache = new Map();
+        this.OMDB_CACHE_STORAGE_KEY =
+            "seyirAtlasiOmdbCache";
+
+        this.omdbMovieCache =
+            this.loadOmdbCache();
 
         this.USER_LIBRARY_STORAGE_KEY =
             this.getUserLibraryStorageKey();
@@ -778,6 +782,41 @@ class MovieExplorer {
     }
 
 
+    loadOmdbCache() {
+        try {
+            const raw =
+                localStorage.getItem(
+                    this.OMDB_CACHE_STORAGE_KEY
+                );
+
+            const entries = raw
+                ? JSON.parse(raw)
+                : [];
+
+            return new Map(entries);
+        } catch {
+            return new Map();
+        }
+    }
+
+
+    saveOmdbCache() {
+        try {
+            const entries =
+                Array.from(
+                    this.omdbMovieCache.entries()
+                );
+
+            localStorage.setItem(
+                this.OMDB_CACHE_STORAGE_KEY,
+                JSON.stringify(entries)
+            );
+        } catch {
+            // Local storage may be unavailable or quota exceeded.
+        }
+    }
+
+
     applyTheme(theme) {
         document.documentElement.dataset.theme =
             theme;
@@ -920,6 +959,8 @@ class MovieExplorer {
                 queries.push({ t: title, ...(year && year !== "—" ? { y: year } : {}) });
             }
 
+            let lastError = null;
+
             for (const query of queries) {
                 const url = new URL(`${this.API_BASE_URL}/omdb`, window.location.href);
                 Object.entries({ ...query, type: "movie" }).forEach(([key, value]) => {
@@ -929,16 +970,19 @@ class MovieExplorer {
                 if (!response.ok) continue;
                 const data = await response.json();
                 if (data.Response !== "False") return data;
+                lastError = data.Error || lastError;
             }
 
-            return null;
+            return lastError
+                ? { Error: lastError }
+                : null;
         } catch (error) {
             console.error(
                 "OMDb verisi çekilirken hata oluştu:",
                 error
             );
 
-            return null;
+            return { Error: "OMDb isteği başarısız oldu." };
         }
     }
 
@@ -3017,11 +3061,12 @@ class MovieExplorer {
                         movieDetails
                     );
 
-                if (omdbData) {
+                if (omdbData && !omdbData.Error) {
                     this.omdbMovieCache.set(
                         normalizedMovieId,
                         omdbData
                     );
+                    this.saveOmdbCache();
                 }
             }
 
@@ -6044,6 +6089,19 @@ class MovieExplorer {
     createAwardsFactHTML(omdbData) {
         const awardsText =
             String(omdbData?.Awards || "").trim();
+
+        if (omdbData?.Error) {
+            return `
+                <div class="movie-modal-fact movie-modal-fact-highlight">
+                    <span class="movie-modal-fact-label">
+                        Ödüller
+                    </span>
+                    <span class="movie-modal-fact-value">
+                        Ödül bilgisi şu anda yüklenemiyor.
+                    </span>
+                </div>
+            `;
+        }
 
         if (
             !awardsText ||
