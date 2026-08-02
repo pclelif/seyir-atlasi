@@ -6488,73 +6488,11 @@ select:focus-visible {
 }
 
 .recommend-dialog.has-results .pusula-results {
-    align-items: stretch;
-    gap: 12px;
-}
-
-.recommend-dialog.has-results .pusula-result {
-    display: grid;
-    min-width: 0;
-    grid-template-rows: 340px auto;
-    align-content: start;
+    align-items: start;
 }
 
 .recommend-dialog.has-results .pusula-result .movie-card {
-    width: 100%;
-    height: 340px;
-}
-
-.recommend-dialog.has-results .pusula-result .movie-poster {
-    height: 205px;
-    aspect-ratio: auto;
-    object-position: center 24%;
-}
-
-.recommend-dialog.has-results .pusula-result .movie-info {
-    min-height: 0;
-    padding: 11px 13px 12px;
-}
-
-.recommend-dialog.has-results .pusula-result .movie-title {
-    min-height: 2.5em;
-    margin-bottom: 6px;
-    font-size: 0.86rem;
-    line-height: 1.25;
-}
-
-.recommend-dialog.has-results .pusula-result .movie-details,
-.recommend-dialog.has-results .pusula-result .movie-meta {
-    margin-bottom: 5px;
-    font-size: 0.7rem;
-}
-
-.recommend-dialog.has-results .pusula-result .movie-genres {
-    margin-bottom: 0;
-    font-size: 0.69rem;
-}
-
-.recommend-dialog.has-results .pusula-result > p {
-    display: -webkit-box;
-    min-height: calc(3 * 1.4em);
-    margin-top: 7px;
-    overflow: hidden;
-    font-size: 0.71rem;
-    line-height: 1.4;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-}
-
-.recommend-dialog.has-results .card-quick-actions {
-    top: 8px;
-    right: 8px;
-    gap: 4px;
-}
-
-.recommend-dialog.has-results .card-quick-action {
-    width: 29px;
-    height: 29px;
-    border-radius: 8px;
+    height: auto;
 }
 
 .pusula-message {
@@ -7252,20 +7190,6 @@ select:focus-visible {
     .recommend-dialog.has-results .pusula-chat {
         min-height: calc(94dvh - 190px);
         max-height: calc(94dvh - 190px);
-    }
-
-    .recommend-dialog.has-results .pusula-result {
-        grid-template-rows: auto auto;
-    }
-
-    .recommend-dialog.has-results .pusula-result .movie-card {
-        height: auto;
-        min-height: 138px;
-    }
-
-    .recommend-dialog.has-results .pusula-result .movie-poster {
-        width: 92px;
-        height: 138px;
     }
 
     .pusula-questions {
