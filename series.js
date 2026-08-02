@@ -54,7 +54,7 @@ class SeriesExplorer {
         }).format(new Date()));
         let daypart = "bu gece";
         if (hour >= 5 && hour < 11) daypart = "bu sabah";
-        else if (hour >= 11 && hour < 17) daypart = "bugün öğlen";
+        else if (hour >= 11 && hour < 17) daypart = "bu gece";
         else if (hour >= 17 && hour < 22) daypart = "bu akşam";
         document.querySelectorAll("[data-pusula-daypart]").forEach((element) => {
             const start = element.parentElement?.tagName === "LEGEND";
@@ -1094,19 +1094,20 @@ class SeriesExplorer {
     }
 
     awardsHTML(omdb) {
-        if (!omdb?.Awards || omdb.Awards === "N/A") {
+        const awardsText = String(omdb?.Awards || "").trim();
+        if (!awardsText || /^N\/A$/i.test(awardsText)) {
             return `<div class="movie-modal-fact movie-modal-fact-highlight"><span class="movie-modal-fact-label">Ödüller</span><span class="movie-modal-fact-value">Bu yapım için ödül bilgisi bulunmuyor.</span></div>`;
         }
-        return `<div class="movie-modal-fact movie-modal-fact-highlight"><span class="movie-modal-fact-label">Ödüller</span><span class="movie-modal-fact-value">${this.escape(this.formatAwards(omdb.Awards))}</span></div>`;
+        return `<div class="movie-modal-fact movie-modal-fact-highlight"><span class="movie-modal-fact-label">Ödüller</span><span class="movie-modal-fact-value">${this.escape(this.formatAwards(awardsText))}</span></div>`;
     }
 
     formatAwards(value) {
-        const text = String(value);
+        const text = String(value).trim();
         const count = (pattern) => Number(text.match(pattern)?.[1] || 0);
         const oscarWins = count(/won\s+(\d+)\s+oscars?/i);
-        const oscarNominations = count(/nominated\s+for\s+(\d+)\s+oscars?/i);
+        const oscarNominations = count(/nominated\s+for\s+(\d+)\s+oscars?/i) || count(/(\d+)\s+Oscar nominations?/i);
         const wins = count(/(\d+)\s+wins?/i);
-        const nominations = count(/(\d+)\s+nominations?/i);
+        const nominations = count(/(\d+)\s+nominations?/i) || count(/(\d+)\s+nomination\b/i);
         const parts = [];
         if (oscarWins) parts.push(`${oscarWins} Oscar ödülü`);
         else if (oscarNominations) parts.push(`${oscarNominations} Oscar adaylığı`);
