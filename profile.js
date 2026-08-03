@@ -759,7 +759,7 @@ class LocalAccountManager {
         const defaultProfile = {
             id: "local-user",
             name: "Seyirci",
-            email: "Yerel Profil (localStorage)",
+            email: "Verileriniz yalnızca bu cihazda saklanır",
             emailVerified: true,
             avatar: "images/avatar/1.svg",
             preferences: {
@@ -1073,7 +1073,7 @@ class LocalAccountManager {
 
         document.getElementById(
             "profileEmail"
-        ).textContent = account.email;
+        ).textContent = "Verileriniz yalnızca bu cihazda saklanır";
 
         const profileAvatar =
             document.getElementById(

@@ -5238,7 +5238,7 @@ class MovieExplorer {
                                 }
                             </div>
                             <div class="custom-list-actions">
-                                <button type="button" data-share-list="custom:${this.escapeHTML(list.id)}">Paylaş</button>
+                                <button type="button" data-share-list="custom:${this.escapeHTML(list.id)}" disabled title="Gizlilik nedeniyle liste paylaşımı pasiftir." style="opacity:.5;cursor:not-allowed;">Paylaş (Pasif)</button>
                                 <button type="button" data-delete-custom-list="${this.escapeHTML(list.id)}" aria-label="${this.escapeHTML(list.name)} listesini sil">Sil</button>
                             </div>
                         </header>

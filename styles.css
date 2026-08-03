@@ -4009,6 +4009,12 @@ html:not([data-theme="light"]) .footer-brand img {
     grid-row: 2;
 }
 
+button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.55;
+    transition: opacity var(--transition);
+}
+
 .footer-inner > .footer-data-sources {
     position: static;
     grid-column: 1 / -1;
