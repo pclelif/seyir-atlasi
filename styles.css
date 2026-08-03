@@ -4018,6 +4018,12 @@ html:not([data-theme="light"]) .footer-brand img {
     text-align: center;
 }
 
+.disabled-link {
+    opacity: .55;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
 .footer-inner > .footer-privacy-note {
     position: static;
     grid-column: 1 / -1;
