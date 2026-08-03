@@ -6726,7 +6726,7 @@ select:focus-visible {
     font-style: normal;
     font-weight: 750;
     font-family: inherit;
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="%230b1026" stroke="%23fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="%230b1026" stroke="%23fbbf24"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="%23fde68a"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="%23fde68a"/></svg>') 11 11, pointer;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23fde68a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>') 12 12, pointer;
     transition: all var(--transition);
     z-index: 5;
 }
