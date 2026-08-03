@@ -756,18 +756,22 @@ class LocalAccountManager {
     }
 
     getCurrentAccount() {
-        if (!this.session?.accountId) {
-            return null;
-        }
+        const defaultProfile = {
+            id: "local-user",
+            name: "Seyirci",
+            email: "Yerel Profil (localStorage)",
+            emailVerified: true,
+            avatar: "images/avatar/1.svg",
+            preferences: {
+                genres: [],
+                favoriteMovie: "",
+                favoriteSeries: "",
+                favoriteCharacter: "",
+                customAvatar: ""
+            }
+        };
 
-        const account = this.accounts.find(
-                (account) => {
-                    return account.id ===
-                        this.session.accountId;
-                }
-            ) || null;
-
-        return account?.emailVerified === true ? account : null;
+        return this.readStorage("seyirAtlasiGuestProfile", defaultProfile);
     }
 
     showRecoveryForm(show = true) {
@@ -1000,26 +1004,28 @@ class LocalAccountManager {
         }
 
         const avatar = String(formData.get("avatar") || "images/avatar/1.svg");
-        const preferences={genres:formData.getAll("genres").slice(0,3),favoriteMovie:String(formData.get("favoriteMovie")||""),favoriteSeries:String(formData.get("favoriteSeries")||""),favoriteCharacter:String(formData.get("favoriteCharacter")||""),customAvatar:formData.get("avatar")==="custom"?this.customAvatarData||"":""};
-        this.setBusy(form, true);
-        try {
-            const { user } = await this.api("profile", { method: "PATCH", body: JSON.stringify({ name, avatar, preferences }) });
-            this.cacheAccount(user);
-            this.toggleProfileEdit(false);
-            this.render();
+        const preferences = {
+            genres: formData.getAll("genres").slice(0, 3),
+            favoriteMovie: String(formData.get("favoriteMovie") || ""),
+            favoriteSeries: String(formData.get("favoriteSeries") || ""),
+            favoriteCharacter: String(formData.get("favoriteCharacter") || ""),
+            customAvatar: formData.get("avatar") === "custom" ? this.customAvatarData || "" : ""
+        };
 
-            if (
-                typeof window.showToast ===
-                "function"
-            ) {
-                window.showToast(
-                    "Profil bilgilerin güncellendi."
-                );
-            }
-        } catch (error) {
-            this.showFeedback(error.message, true);
-        } finally {
-            this.setBusy(form, false);
+        const current = this.getCurrentAccount();
+        const updated = {
+            ...current,
+            name,
+            avatar,
+            preferences
+        };
+
+        this.writeStorage("seyirAtlasiGuestProfile", updated);
+        this.toggleProfileEdit(false);
+        this.render();
+
+        if (typeof window.showToast === "function") {
+            window.showToast("Profil bilgilerin yerel olarak güncellendi.");
         }
     }
 
@@ -1037,19 +1043,12 @@ class LocalAccountManager {
                 "profileView"
             );
 
-        authView.hidden =
-            Boolean(account);
-
-        profileView.hidden =
-            !account;
-
-        if (!account) {
-            return;
-        }
+        if (authView) authView.hidden = true;
+        if (profileView) profileView.hidden = false;
 
         const library =
             this.readStorage(
-                `${this.LIBRARY_KEY}:${account.id}`,
+                this.LIBRARY_KEY,
                 {
                     favorites: {},
                     watchlist: {},
@@ -1060,7 +1059,7 @@ class LocalAccountManager {
 
         const seriesLibrary =
             this.readStorage(
-                `seyirAtlasiSeriesLibrary:${account.id}`,
+                "seyirAtlasiSeriesLibrary",
                 {
                     favorites: {},
                     watchlist: {},
