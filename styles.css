@@ -6716,17 +6716,18 @@ select:focus-visible {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 0.7rem;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    background: var(--primary-soft);
+    font-size: 0.72rem;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 750;
     font-family: inherit;
     cursor: help;
-    transition: all 0.2s ease;
+    transition: all var(--transition);
     z-index: 5;
 }
 
@@ -6737,9 +6738,10 @@ select:focus-visible {
 
 .pusula-info-trigger:hover,
 .pusula-info-trigger:focus {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.6);
-    background: rgba(255, 255, 255, 0.12);
+    color: var(--primary-light);
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    box-shadow: 0 0 12px var(--primary-soft);
 }
 
 .pusula-tooltip-box {
@@ -6748,23 +6750,23 @@ select:focus-visible {
     right: -4px;
     width: max-content;
     max-width: 260px;
-    padding: 8px 12px;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    color: #e2e8f0;
-    font-size: 0.72rem;
-    line-height: 1.4;
+    padding: 9px 13px;
+    background: var(--background-light);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 0.73rem;
+    line-height: 1.45;
     font-weight: 500;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-medium);
     opacity: 0;
     visibility: hidden;
     transform: translateY(4px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
     pointer-events: none;
-    z-index: 20;
+    z-index: 25;
     text-align: left;
 }
 
