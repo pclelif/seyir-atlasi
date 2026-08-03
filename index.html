@@ -532,12 +532,17 @@
             </div>
             <form id="recommendForm" class="pusula-composer">
                 <label for="pusulaInput" class="visually-hidden">Pusula'ya mesajın</label>
-                <textarea id="pusulaInput" name="message" rows="1" maxlength="600" placeholder="Aklından geçenleri paylaş…"></textarea>
+                <div class="pusula-input-field">
+                    <textarea id="pusulaInput" name="message" rows="1" maxlength="600" placeholder="Aklından geçenleri paylaş…"></textarea>
+                    <span class="pusula-info-trigger" tabindex="0" aria-label="Gizlilik Uyarısı">
+                        <i aria-hidden="true">i</i>
+                        <span class="pusula-tooltip-box" role="tooltip">Lütfen Pusula ile kişisel bilgilerinizi paylaşmamaya özen gösterin.</span>
+                    </span>
+                </div>
                 <button type="submit" aria-label="Mesajı gönder">
                     <span>Yola çıkalım</span>
                 </button>
             </form>
-            <p class="pusula-privacy-note">Lütfen Pusula ile kişisel bilgilerinizi paylaşmayın.</p>
         </section>
     </div>
 

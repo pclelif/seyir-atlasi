@@ -333,10 +333,13 @@
                     <label class="profile-visibility-switch"><input type="checkbox" id="profileVisibilityToggle" disabled><span aria-hidden="true"></span><b id="profileVisibilityLabel">Kapalı</b></label>
                 </section>
                 <div class="profile-export-setting"><div><strong>Verilerini indir</strong><p>Verileriniz doğrudan cihazınızın kendi hafızasında saklanmaktadır.</p></div><button type="button" id="exportAccountBtn" disabled title="Verileriniz yalnızca bu cihazda yerel saklanır.">Pasif</button></div>
-                <footer class="profile-footer-actions">
-                    <p>Yerel oturum aktif; verileriniz güvenle bu cihazda saklanır.</p>
+                <div class="profile-footer-actions">
+                    <div>
+                        <strong>Çıkış yap</strong>
+                        <p>Yerel oturum aktif; verileriniz güvenle bu cihazda saklanır.</p>
+                    </div>
                     <button type="button" class="profile-logout" id="logoutBtn" disabled title="Oturumunuz bu cihazda yerel olarak aktiftir.">Çıkış Yap (Pasif)</button>
-                </footer>
+                </div>
                 <section class="profile-security" id="profileSecurity" hidden aria-labelledby="securityTitle">
                     <div class="profile-section-heading"><div><span class="profile-section-kicker">Hesabını yönet</span><h2 id="securityTitle">Güvenlik ayarları</h2></div></div>
                     <form id="changePasswordForm" class="security-form">
