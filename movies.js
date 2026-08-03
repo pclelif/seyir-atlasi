@@ -4216,7 +4216,7 @@ class MovieExplorer {
         const accountId =
             this.getActiveAccountId();
 
-        return accountId
+        return accountId && accountId !== "guest"
             ? `seyirAtlasiUserLibrary:${accountId}`
             : "seyirAtlasiUserLibrary";
     }
@@ -4234,9 +4234,10 @@ class MovieExplorer {
                     )
                 );
 
-            if (!session?.accountId) {
-                return null;
-            }
+            return session?.accountId || "guest";
+        } catch {
+            return "guest";
+        }
 
             const accounts =
                 JSON.parse(
@@ -5271,15 +5272,11 @@ class MovieExplorer {
             );
 
         if (authWarning) {
-            authWarning.hidden =
-                hasActiveAccount ||
-                this.isSharedView;
+            authWarning.hidden = true;
         }
 
         if (libraryContent) {
-            libraryContent.hidden =
-                !hasActiveAccount &&
-                !this.isSharedView;
+            libraryContent.hidden = false;
         }
 
         if (sharedNote) {

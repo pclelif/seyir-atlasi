@@ -454,12 +454,7 @@ export async function handleAuth(request, response, url) {
                 sender: process.env.MAIL_FROM ? "configured" : "missing"
             }), true;
         }
-
-        return reply(response, 503, {
-            error: "Hesap sistemi şu anda geçici olarak devre dışı. Hesap özellikleri yakında aktif olacaktır."
-        }), true;
-
-        // Auth endpoint implementations are retained below for future reactivation.
+        return reply(response, 503, { error: "Hesap sistemi şu anda geçici olarak devre dışı. Hesap özellikleri yakında aktif olacaktır." }), true;
         if (request.method === "POST" && url.pathname === "/api/auth/register") {
             if (!emailConfigured()) return reply(response, 503, { error: "E-posta servisi henüz yapılandırılmadı." }), true;
             const data = await body(request); const name = String(data.name || "").trim().replace(/\s+/g, " "); const email = normalizeEmail(data.email); const password = String(data.password || "");

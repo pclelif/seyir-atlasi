@@ -1142,9 +1142,9 @@ class SeriesExplorer {
     getAccountId() {
         try {
             const raw = localStorage.getItem("seyirAtlasiSession") || sessionStorage.getItem("seyirAtlasiSession");
-            return raw ? String(JSON.parse(raw).accountId || "") : "";
+            return raw ? String(JSON.parse(raw).accountId || "guest") : "guest";
         } catch {
-            return "";
+            return "guest";
         }
     }
 
@@ -1299,9 +1299,9 @@ class SeriesExplorer {
     renderLibrary() {
         const content = document.getElementById("seriesLibraryContent");
         const warning = document.getElementById("seriesLibraryAuthWarning");
-        if (warning) warning.hidden = Boolean(this.accountId);
-        if (content) content.hidden = !this.accountId;
-        if (!content || !this.accountId) return;
+        if (warning) warning.hidden = true;
+        if (content) content.hidden = false;
+        if (!content) return;
 
         [
             ["favorites", "seriesFavoritesGrid", "Henüz favorilerine dizi eklemedin."],
