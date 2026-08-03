@@ -364,11 +364,16 @@ export async function handleAnalytics(request, response, url) {
                 } catch {}
             }
 
+            const dbToday = days.find((d) => {
+                const itemDate = d.date instanceof Date ? d.date.toISOString().split("T")[0] : String(d.date).split("T")[0];
+                return itemDate === date;
+            }) || days[0];
+
             reply(response, 200, {
                 todayDate: date,
-                todayVisitors: inMemoryAnalytics.visitors.size,
-                todayPageViews: inMemoryAnalytics.pageViews,
-                totalPageViews: inMemoryAnalytics.totalPageViews,
+                todayVisitors: dbToday ? Number(dbToday.visitors || 0) : inMemoryAnalytics.visitors.size,
+                todayPageViews: dbToday ? Number(dbToday.page_views || 0) : inMemoryAnalytics.pageViews,
+                totalPageViews: days.reduce((acc, cur) => acc + Number(cur.page_views || 0), 0) || inMemoryAnalytics.totalPageViews,
                 days
             });
             return true;
