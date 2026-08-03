@@ -6719,9 +6719,9 @@ select:focus-visible {
     width: 19px;
     height: 19px;
     border-radius: 50%;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    background: var(--primary-soft);
+    border: 1px solid rgba(245, 158, 11, 0.38);
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.14);
     font-size: 0.72rem;
     font-style: normal;
     font-weight: 750;
@@ -6738,10 +6738,10 @@ select:focus-visible {
 
 .pusula-info-trigger:hover,
 .pusula-info-trigger:focus {
-    color: var(--primary-light);
-    border-color: var(--primary);
-    background: var(--primary-soft);
-    box-shadow: 0 0 12px var(--primary-soft);
+    color: #ffffff;
+    border-color: #fbbf24;
+    background: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.38);
 }
 
 .pusula-tooltip-box {
