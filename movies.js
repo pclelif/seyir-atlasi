@@ -4234,10 +4234,9 @@ class MovieExplorer {
                     )
                 );
 
-            return session?.accountId || "guest";
-        } catch {
-            return "guest";
-        }
+            if (!session?.accountId) {
+                return "guest";
+            }
 
             const accounts =
                 JSON.parse(
@@ -4255,9 +4254,9 @@ class MovieExplorer {
 
             return hasValidAccount
                 ? session.accountId
-                : null;
+                : "guest";
         } catch {
-            return null;
+            return "guest";
         }
     }
 
