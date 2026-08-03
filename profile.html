@@ -59,11 +59,12 @@
                 <span class="about-kicker">Kendi rotanı kaydet</span>
                 <h1>SeyirAtlası hesabın</h1>
                 <p>Listelerini düzenlemek ve profilini oluşturmak için yerel hesabına giriş yap.</p>
+                <p class="account-offline-note">Hesap özellikleri geçici olarak devre dışı. Favoriler, izleme listesi ve izlenenler yalnızca bu tarayıcıda saklanmaya devam edecek.</p>
             </div>
 
             <div class="account-tabs" id="authTabs" role="tablist" aria-label="Hesap işlemleri">
-                <button type="button" class="account-tab is-active" data-auth-tab="login" role="tab" aria-selected="true">Giriş Yap</button>
-                <button type="button" class="account-tab" data-auth-tab="register" role="tab" aria-selected="false">Profil Oluştur</button>
+                <button type="button" class="account-tab is-active" data-auth-tab="login" role="tab" aria-selected="true" disabled title="Hesap özellikleri yakında aktif olacak.">Giriş Yap <span style="margin-left:.5rem;font-size:.8rem;opacity:.8;">Yakında</span></button>
+                <button type="button" class="account-tab" data-auth-tab="register" role="tab" aria-selected="false" disabled title="Hesap özellikleri yakında aktif olacak.">Profil Oluştur <span style="margin-left:.5rem;font-size:.8rem;opacity:.8;">Yakında</span></button>
             </div>
 
             <form class="account-form" id="loginForm">
@@ -90,9 +91,9 @@
                     </span>
                     <span>Beni hatırla</span>
                 </label>
-                <button type="submit" class="account-submit" data-busy-text="Giriş yapılıyor…">Giriş Yap</button>
-                <button type="button" class="account-link-button" id="forgotPasswordBtn">Şifremi unuttum</button>
-                <button type="button" class="account-link-button" id="resendVerificationBtn" hidden>Doğrulama e-postasını yeniden gönder</button>
+                <button type="submit" class="account-submit" data-busy-text="Giriş yapılıyor…" disabled title="Hesap özellikleri yakında aktif olacak.">Giriş Yap</button>
+                <button type="button" class="account-link-button" id="forgotPasswordBtn" disabled title="Hesap özellikleri yakında aktif olacak.">Şifremi unuttum</button>
+                <button type="button" class="account-link-button" id="resendVerificationBtn" hidden disabled title="Hesap özellikleri yakında aktif olacak.">Doğrulama e-postasını yeniden gönder</button>
             </form>
 
             <form class="account-form" id="registerForm" hidden novalidate>
@@ -160,7 +161,7 @@
                     <input type="checkbox" name="termsAccepted" required>
                     <span><a href="kullanim-kosullari.html" target="_blank">Kullanım Koşulları</a>’nı okudum ve kabul ediyorum.</span>
                 </label>
-                <button type="submit" class="account-submit" data-busy-text="Hesap oluşturuluyor…">Profil Oluştur</button>
+                <button type="submit" class="account-submit" data-busy-text="Hesap oluşturuluyor…" disabled title="Hesap özellikleri yakında aktif olacak.">Profil Oluştur</button>
             </form>
 
             <form class="account-form" id="recoveryForm" hidden>
@@ -378,7 +379,9 @@
                 </a>
             </div>
             <p class="footer-copy">© 2026 SeyirAtlası</p>
-            <p class="footer-data-sources">Veri kaynakları: TMDB · OMDb · Gemini API</p>
+            <p class="footer-privacy-note">Verileriniz yalnızca bu cihazda saklanır.</p>
+            <p class="footer-data-sources">Veri kaynakları: <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">TMDB</a> · <a href="https://www.omdbapi.com" target="_blank" rel="noopener noreferrer">OMDb</a> · Google Gemini API</p>
+            <p class="footer-legal-note">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </div>
     </footer>
 

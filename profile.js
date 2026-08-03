@@ -460,6 +460,10 @@ class LocalAccountManager {
             confirmation.value === password;
     }
 
+    accountDisabledMessage() {
+        this.showFeedback("Hesap özellikleri yakında aktif olacaktır.", true);
+    }
+
     async api(path, options = {}) {
         const response = await fetch(`/api/auth/${path}`, {
             credentials: "same-origin",
@@ -522,6 +526,8 @@ class LocalAccountManager {
 
     async handleRegister(event) {
         event.preventDefault();
+        this.accountDisabledMessage();
+        return;
         const form = event.currentTarget;
 
         const formData =
@@ -627,6 +633,8 @@ class LocalAccountManager {
 
     async handleLogin(event) {
         event.preventDefault();
+        this.accountDisabledMessage();
+        return;
         const form = event.currentTarget;
 
         const formData =
@@ -776,14 +784,20 @@ class LocalAccountManager {
     }
 
     async handleRecovery(event) {
-        event.preventDefault(); const form = event.currentTarget; this.setBusy(form, true);
+        event.preventDefault();
+        this.accountDisabledMessage();
+        return;
+        const form = event.currentTarget; this.setBusy(form, true);
         try { const data = await this.api("forgot-password", { method: "POST", body: JSON.stringify({ email: new FormData(form).get("email") }) }); this.showFeedback(data.message); }
         catch (error) { this.showFeedback(error.message, true); }
         finally { this.setBusy(form, false); }
     }
 
     async handlePasswordReset(event) {
-        event.preventDefault(); const form = event.currentTarget; const password = String(new FormData(form).get("password"));
+        event.preventDefault();
+        this.accountDisabledMessage();
+        return;
+        const form = event.currentTarget; const password = String(new FormData(form).get("password"));
         this.setBusy(form, true);
         try { const data = await this.api("reset-password", { method: "POST", body: JSON.stringify({ token: new URLSearchParams(location.search).get("reset"), password }) }); history.replaceState({}, "", "profile.html"); document.getElementById("resetPasswordForm").hidden = true; document.getElementById("authTabs").hidden = false; this.switchTab("login"); this.showFeedback(data.message); }
         catch (error) { this.showFeedback(error.message, true); }
@@ -791,19 +805,26 @@ class LocalAccountManager {
     }
 
     async resendVerification() {
+        this.accountDisabledMessage();
+        return;
         const button = document.getElementById("resendVerificationBtn");
         try { const data = await this.api("resend-verification", { method: "POST", body: JSON.stringify({ email: button.dataset.email }) }); button.hidden = true; this.showFeedback(data.message); }
         catch (error) { this.showFeedback(error.message, true); }
     }
 
     async handlePasswordChange(event) {
-        event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); this.setBusy(form, true);
+        event.preventDefault();
+        this.accountDisabledMessage();
+        return;
+        const form = event.currentTarget; const data = new FormData(form); this.setBusy(form, true);
         try { const result = await this.api("change-password", { method: "POST", body: JSON.stringify({ currentPassword: data.get("currentPassword"), newPassword: data.get("newPassword") }) }); form.reset(); window.showToast?.(result.message); }
         catch (error) { window.showToast?.(error.message); }
         finally { this.setBusy(form, false); }
     }
 
     async handleAccountDelete() {
+        this.accountDisabledMessage();
+        return;
         if (!confirm("Hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.")) return;
         const password = prompt("Onaylamak için şifreni gir:"); if (!password) return;
         const accountId = this.session?.accountId;
@@ -840,6 +861,8 @@ class LocalAccountManager {
     }
 
     async updateProfileVisibility(isPublic) {
+        this.accountDisabledMessage();
+        return;
         const toggle=document.getElementById("profileVisibilityToggle"); toggle.disabled=true;
         try { const {user,url}=await this.api("profile-visibility",{method:"PATCH",body:JSON.stringify({isPublic})}); this.cacheAccount(user); this.renderProfileVisibility(user,url); window.showToast?.(isPublic?"Profilin herkese açıldı.":"Profilin gizlendi."); }
         catch(error){ toggle.checked=!isPublic; window.showToast?.(error.message); }
@@ -853,6 +876,8 @@ class LocalAccountManager {
     }
 
     async exportAccountData() {
+        this.accountDisabledMessage();
+        return;
         const button=document.getElementById("exportAccountBtn"); button.disabled=true;
         try { const response=await fetch("/api/auth/export",{credentials:"same-origin"}); const data=await response.json(); if(!response.ok)throw new Error(data.error); const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`seyiratlasi-verilerim-${new Date().toISOString().slice(0,10)}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(link.href),1000); window.showToast?.("Verilerinin kopyası indirildi."); }
         catch(error){window.showToast?.(error.message);} finally{button.disabled=false;}
