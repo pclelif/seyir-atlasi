@@ -6726,7 +6726,7 @@ select:focus-visible {
     font-style: normal;
     font-weight: 750;
     font-family: inherit;
-    cursor: help;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="%230b1026" stroke="%23fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="%230b1026" stroke="%23fbbf24"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="%23fde68a"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="%23fde68a"/></svg>') 11 11, pointer;
     transition: all var(--transition);
     z-index: 5;
 }
@@ -6748,8 +6748,6 @@ select:focus-visible {
     position: absolute;
     bottom: calc(100% + 10px);
     right: -4px;
-    display: flex;
-    align-items: center;
     width: max-content;
     max-width: 270px;
     padding: 8px 12px;
@@ -6770,24 +6768,6 @@ select:focus-visible {
     pointer-events: none;
     z-index: 25;
     text-align: left;
-}
-
-.pusula-tooltip-qmark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 17px;
-    height: 17px;
-    margin-right: 8px;
-    border-radius: 50%;
-    border: 1px solid rgba(245, 158, 11, 0.45);
-    color: #fde68a;
-    background: rgba(245, 158, 11, 0.16);
-    font-size: 0.72rem;
-    font-weight: 800;
-    font-style: normal;
-    line-height: 1;
-    flex-shrink: 0;
 }
 
 .pusula-info-trigger:hover .pusula-tooltip-box,
