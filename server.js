@@ -327,11 +327,9 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname.startsWith("/api/auth/")) {
         return json(response, 503, { error: "Hesap sistemi henüz yapılandırılmadı." });
     }
-    if (url.pathname.startsWith("/api/analytics/") && authReady) {
+    if (url.pathname.startsWith("/api/analytics/")) {
         const handled = await handleAnalytics(request, response, url);
         if (handled) return;
-    }
-    if (url.pathname.startsWith("/api/analytics/")) {
         return request.method === "POST"
             ? response.writeHead(204, { "Cache-Control": "no-store" }).end()
             : json(response, 404, { error: "Uç nokta bulunamadı." });
