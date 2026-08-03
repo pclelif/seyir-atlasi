@@ -308,42 +308,69 @@ function analyticsVisitorHash(request, date) {
     return createHmac("sha256", secret).update(`${date}:${address}`).digest("hex");
 }
 
+const inMemoryAnalytics = {
+    date: "",
+    visitors: new Set(),
+    pageViews: 0,
+    totalPageViews: 0
+};
+
 export async function handleAnalytics(request, response, url) {
-    if (!pool || !url.pathname.startsWith("/api/analytics/")) return false;
+    if (!url.pathname.startsWith("/api/analytics/")) return false;
+
+    const date = analyticsDate();
+    if (inMemoryAnalytics.date !== date) {
+        inMemoryAnalytics.date = date;
+        inMemoryAnalytics.visitors.clear();
+        inMemoryAnalytics.pageViews = 0;
+    }
 
     try {
         if (request.method === "POST" && url.pathname === "/api/analytics/view") {
-            const date = analyticsDate();
             const visitorHash = analyticsVisitorHash(request, date);
-            await pool.query(
-                `INSERT INTO analytics_daily_visitors(visit_date, visitor_hash, page_views)
-                 VALUES($1, $2, 1)
-                 ON CONFLICT(visit_date, visitor_hash)
-                 DO UPDATE SET page_views = analytics_daily_visitors.page_views + 1`,
-                [date, visitorHash]
-            );
+            inMemoryAnalytics.visitors.add(visitorHash);
+            inMemoryAnalytics.pageViews += 1;
+            inMemoryAnalytics.totalPageViews += 1;
+
+            if (pool) {
+                await pool.query(
+                    `INSERT INTO analytics_daily_visitors(visit_date, visitor_hash, page_views)
+                     VALUES($1, $2, 1)
+                     ON CONFLICT(visit_date, visitor_hash)
+                     DO UPDATE SET page_views = analytics_daily_visitors.page_views + 1`,
+                    [date, visitorHash]
+                ).catch(() => {});
+            }
+
             response.writeHead(204, { "Cache-Control": "no-store" });
             response.end();
             return true;
         }
 
-        if (request.method === "GET" && url.pathname === "/api/analytics/summary") {
-            const user = await currentUser(request);
-            const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL);
-            if (!user || !adminEmail || normalizeEmail(user.email) !== adminEmail) {
-                reply(response, 404, { error: "Uç nokta bulunamadı." });
-                return true;
+        if (request.method === "GET" && (url.pathname === "/api/analytics/stats" || url.pathname === "/api/analytics/summary")) {
+            let days = [];
+            if (pool) {
+                try {
+                    const result = await pool.query(`
+                        SELECT visit_date AS date,
+                               COUNT(*)::INTEGER AS visitors,
+                               COALESCE(SUM(page_views), 0)::INTEGER AS page_views
+                        FROM analytics_daily_visitors
+                        WHERE visit_date >= (NOW() AT TIME ZONE 'Europe/Istanbul')::date - INTERVAL '30 days'
+                        GROUP BY visit_date
+                        ORDER BY visit_date DESC
+                    `);
+                    days = result.rows;
+                } catch {}
             }
-            const result = await pool.query(`
-                SELECT visit_date AS date,
-                       COUNT(*)::INTEGER AS visitors,
-                       COALESCE(SUM(page_views), 0)::INTEGER AS page_views
-                FROM analytics_daily_visitors
-                WHERE visit_date >= (NOW() AT TIME ZONE 'Europe/Istanbul')::date - INTERVAL '30 days'
-                GROUP BY visit_date
-                ORDER BY visit_date DESC
-            `);
-            reply(response, 200, { days: result.rows });
+
+            reply(response, 200, {
+                todayDate: date,
+                todayVisitors: inMemoryAnalytics.visitors.size,
+                todayPageViews: inMemoryAnalytics.pageViews,
+                totalPageViews: inMemoryAnalytics.totalPageViews,
+                days
+            });
             return true;
         }
     } catch (error) {
