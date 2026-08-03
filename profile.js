@@ -1071,10 +1071,6 @@ class LocalAccountManager {
             "profileName"
         ).textContent = account.name;
 
-        document.getElementById(
-            "profileEmail"
-        ).textContent = "Verileriniz yalnızca bu cihazda saklanır";
-
         const profileAvatar =
             document.getElementById(
                 "profileAvatar"

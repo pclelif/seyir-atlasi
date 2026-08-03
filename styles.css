@@ -3434,28 +3434,27 @@ html:not([data-theme="light"]) .footer-brand img {
 }
 
 .profile-identity-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     min-width: 0;
 }
 
 .profile-kicker,
 .profile-section-kicker {
     color: #eab6c8;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 850;
     letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
 .profile-identity h1 {
-    margin: 7px 0 5px;
+    margin: 4px 0 0;
     color: #ffffff;
     font-size: clamp(2rem, 4vw, 3.25rem);
     line-height: 1.05;
     letter-spacing: -1.8px;
-}
-
-.profile-identity .profile-email {
-    color: rgba(226, 232, 240, 0.7);
 }
 
 .profile-hero .profile-edit-toggle {
@@ -3732,15 +3731,24 @@ html:not([data-theme="light"]) .footer-brand img {
     border-top: 1px solid var(--border);
 }
 
-.profile-footer-actions p {
-    color: var(--text-muted);
-    font-size: 0.72rem;
-}
-
-.profile-footer-actions .profile-logout {
-    min-height: 40px;
-    padding: 0 16px;
-    font-size: 0.75rem;
+.profile-footer-actions .profile-logout,
+.profile-security-toggle,
+.profile-export-setting button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    color: var(--text);
+    background: var(--primary-soft);
+    border: 1px solid var(--border-strong);
+    border-radius: 11px;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
 [data-theme="light"] .profile-dashboard {
@@ -6685,7 +6693,7 @@ select:focus-visible {
     font-size: 0.74rem;
     line-height: 1.45;
     opacity: 0.82;
-    text-align: center;
+    text-align: left;
 }
 
 .pusula-results {
