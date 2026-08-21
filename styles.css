@@ -82,11 +82,16 @@
 
 html {
     scroll-behavior: smooth;
+    background-color: var(--background);
+    overscroll-behavior: none;
 }
 
 body {
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
+    overscroll-behavior: none;
+    background-color: var(--background);
 
     color: var(--text);
 
