@@ -20,14 +20,20 @@ try {
 }
 
 const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || "127.0.0.1";
+const host = process.env.HOST || "0.0.0.0";
 const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 const rateBuckets = new Map();
 const dataRateBuckets = new Map();
-const authReady = await initializeAuth().catch((error) => {
-    console.error("Veritabanı başlatılamadı:", error.message);
-    return false;
-});
+let authReady = false;
+const authInitPromise = initializeAuth()
+    .then((result) => {
+        authReady = result;
+        return result;
+    })
+    .catch((error) => {
+        console.error("Veritabanı başlatılamadı:", error.message);
+        return false;
+    });
 
 const tmdbAllowedPaths = [
     /^\/genre\/(?:movie|tv)\/list$/,
@@ -321,7 +327,8 @@ const server = http.createServer(async (request, response) => {
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     }
-    if (url.pathname.startsWith("/api/auth/") && authReady) {
+    const isAuthReady = authReady || await authInitPromise;
+    if (url.pathname.startsWith("/api/auth/") && isAuthReady) {
         return handleAuth(request, response, url);
     }
     if (url.pathname.startsWith("/api/auth/")) {
@@ -334,7 +341,7 @@ const server = http.createServer(async (request, response) => {
             ? response.writeHead(204, { "Cache-Control": "no-store" }).end()
             : json(response, 404, { error: "Uç nokta bulunamadı." });
     }
-    if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/") || url.pathname.startsWith("/api/profiles/")) && authReady) {
+    if ((url.pathname === "/api/library" || url.pathname.startsWith("/api/lists/") || url.pathname.startsWith("/api/profiles/")) && isAuthReady) {
         return handleLibrary(request, response, url);
     }
     if (request.method === "OPTIONS" && url.pathname === "/api/pusula") {
